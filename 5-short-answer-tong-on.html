@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trả Lời Ngắn & Tổng Ôn Thực Chiến</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme: light; }
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#edeadf; --fg:#262319; --fg-dim:#696152;
+    --accent:#9a6a1f; --accent-fg:#ffffff; --accent-soft:#f2e2c4;
+    --ok:#2f7a4f; --ok-soft:#dcefe0; --bad:#b4302f; --bad-soft:#f6dcda;
+    --border:#ddd6c3; --shadow:0 1px 2px rgba(30,30,10,.06), 0 8px 24px rgba(30,30,10,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+      --accent:#e8c17f; --accent-fg:#2a1d08; --accent-soft:#453523;
+      --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+      --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+    --accent:#e8c17f; --accent-fg:#2a1d08; --accent-soft:#453523;
+    --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+    --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; margin:0; padding-inline:16px; padding-block:24px; line-height:1.55}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif; font-weight:600; text-wrap:balance; margin:0 0 .4em}
+  .wrap{max-width:760px; margin:0 auto}
+  p{margin:.5em 0}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px}
+  [hidden]{display:none!important}
+
+  #gate{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px}
+  #gate .box{max-width:380px; width:100%; text-align:center}
+  #gate input{width:100%; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); margin:14px 0}
+  #gate button{width:100%; font-size:16px; font-weight:600; padding:12px 14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  #gate .emoji{font-size:40px}
+
+  nav.tabs{display:flex; gap:8px; max-width:760px; margin:0 auto 16px; overflow-x:auto}
+  nav.tabs button{flex:1; white-space:nowrap; font:inherit; font-weight:600; font-size:14px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg-dim); cursor:pointer}
+  nav.tabs button.active{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+
+  .lede{color:var(--fg-dim); font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0 0 20px}
+  .groupTitle{font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-dim); margin:22px 0 10px; display:flex; align-items:center; gap:8px}
+  .groupTitle::after{content:""; flex:1; height:1px; background:var(--border)}
+
+  .acc{border:1px solid var(--border); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--surface)}
+  .acc-h{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; cursor:pointer; font-weight:600}
+  .acc-h .tag{font-size:.75rem; font-weight:600; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:999px; margin-right:8px}
+  .acc-h .chev{transition:transform .2s; color:var(--fg-dim); flex:0 0 auto}
+  .acc.open .acc-h .chev{transform:rotate(180deg)}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease}
+  .acc.open .acc-body{max-height:4000px}
+  .acc-inner{padding:0 16px 16px}
+  .acc-inner h4{font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-dim); margin:12px 0 6px}
+  .acc-inner ul{margin:0; padding-left:18px}
+  .acc-inner li{margin-bottom:8px}
+  .fixbox{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin-top:6px; font-size:.94rem}
+  .exbox{background:var(--surface-2); border-left:3px solid var(--accent); border-radius:8px; padding:8px 12px; margin:6px 0; font-size:.92rem}
+  .exbox b{color:var(--accent)}
+  table.vt{width:100%; border-collapse:collapse; font-size:.88rem; margin:8px 0}
+  table.vt th, table.vt td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--border)}
+  table.vt th{color:var(--fg-dim); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em}
+  .note-card{background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:14px; font-size:.95rem}
+
+  .qcard{margin-bottom:14px}
+  .qcard .qtext{font-weight:600; margin-bottom:10px}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{margin-top:3px}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .fb{display:none; margin-top:8px; padding:10px 12px; border-radius:10px; font-size:.92rem}
+  .fb.show{display:block}
+  .fb.good{background:var(--ok-soft); color:var(--ok)}
+  .fb.bad{background:var(--bad-soft); color:var(--bad)}
+  button.primary{font:inherit; font-weight:600; font-size:15px; padding:12px 18px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  button.primary:disabled{opacity:.5; cursor:not-allowed}
+  .scorebox{text-align:center; padding:24px 16px}
+  .scorebox .num{font-family:Fraunces,serif; font-size:2.6rem; color:var(--accent)}
+  .note{color:var(--fg-dim); font-size:.85rem; margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <div class="emoji">🏁</div>
+    <h1 style="font-size:1.4rem">Trả Lời Ngắn & Tổng Ôn Thực Chiến</h1>
+    <p style="color:var(--fg-dim)">Nhập tên của em để bắt đầu nhé.</p>
+    <input id="nameInput" placeholder="Tên của em" autocomplete="off">
+    <button id="enterBtn">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" hidden>
+  <h1 style="font-size:1.5rem">Trả Lời Ngắn & Tổng Ôn Thực Chiến</h1>
+  <p class="lede">Dạng cuối cùng — Short Answer Questions — và bài tổng ôn trộn cả 10 dạng đề, chặng cuối trước khi em bước vào làm đề thật.</p>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-tab="read" class="active">📖 Đào sâu</button>
+  <button data-tab="quiz">🎯 Luyện nhận diện</button>
+</nav>
+
+<div class="wrap">
+<section id="tab-read"></section>
+<section id="tab-quiz" hidden></section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LESSON_ID = "sau-short-answer-tong-on";
+var studentName = "";
+function $(id){ return document.getElementById(id); }
+
+var READ_HTML = "\n<div class=\"groupTitle\">SHORT ANSWER QUESTIONS</div>\n\n<div class=\"acc open\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Cách ra đề</span>Trích nguyên văn, không tự diễn đạt</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu hỏi dùng từ nghi vấn (What/Which/How/Who...), yêu cầu trích <b>ĐÚNG NGUYÊN VĂN</b> từ/cụm từ trong bài làm đáp án (không tự diễn đạt lại), có giới hạn số từ nghiêm ngặt. Dạng này xuất hiện không thường xuyên trong đề thật.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 1</span>Vượt giới hạn số từ</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <div class=\"exbox\">Đáp án chuẩn \"<b>(the) norm</b>\" — mạo từ có thể có/không nhưng từ chính bắt buộc đúng.</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 2</span>Tự diễn đạt lại thay vì trích nguyên văn</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Khác MỌI dạng khác — đáp án PHẢI là cụm từ gốc xuất hiện trong bài, không phải ý học sinh tự viết lại dù đúng ý.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 3</span>Xác định sai LOẠI thông tin cần tìm</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Không xác định trước đáp án cần là địa điểm/số lượng/tên riêng/nguyên nhân... nên dễ chọn nhầm cụm gần đó cùng chủ đề.</p>\n    <div class=\"exbox\">Dễ nhầm giữa \"what caused X\" (hỏi nguyên nhân) và \"what did X cause\" (hỏi kết quả).</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 4</span>Từ khoá câu hỏi bị paraphrase</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <div class=\"exbox\">\"first appeared\" ↔ \"originated\"; \"happened as a result of\" ↔ \"led to\".</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 5</span>Lẫn giữa 2 biến thể</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Đôi khi dạng này lồng trắc nghiệm 2-3 lựa chọn thay vì điền tự do — cần nhận diện đúng biến thể để áp dụng kỹ thuật phù hợp.</p>\n    <p class=\"fixbox\">💡 Trước khi đọc bài: tự phân loại câu hỏi đang hỏi về CÁI GÌ (số lượng? địa điểm? tên riêng? hành động? nguyên nhân?). Nhắc đi nhắc lại: đáp án luôn là từ/cụm NGUYÊN VĂN trong bài.</p>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">MẸO CHUNG XUYÊN SUỐT MỌI DẠNG ĐỀ</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Mẹo 1</span>Từ khoá hầu như luôn bị paraphrase</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Không bao giờ dò tìm nguyên văn — phải luyện phản xạ nhận ra Ý giống nhau dù từ khác nhau. Đây là lý do ngân hàng paraphrase áp dụng cho MỌI dạng đề, không chỉ T/F/NG.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Mẹo 2</span>Giới hạn số từ = lỗi mất điểm oan phổ biến nhất</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Xuất hiện ở 5/10 dạng đề (Completion, Summary, Sentence Completion, Short Answer...) — luôn xác định giới hạn TRƯỚC khi tìm đáp án.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Mẹo 3</span>Bẫy nguy hiểm nhất: \"từ quen sai chỗ\"</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Không phải \"từ lạ\" — mà là \"từ quen sai chỗ\". Multiple Choice, Matching Headings, Sentence Completion đều có bẫy lấy đúng từ/ý CÓ THẬT trong bài nhưng gán cho sai đối tượng/đoạn/câu hỏi. Đây là bẫy khó nhất vì thấy \"quen\" liền chọn mà không xác nhận lại ngữ cảnh.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Mẹo 4</span>Cấu trúc câu phức hay che giấu đáp án</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Dấu gạch ngang (–), mệnh đề phân từ đầu câu, \"not only...but also\", \"so...that\" — xuất hiện lặp lại ở nhiều dạng, nên luyện thành kỹ năng đọc riêng, không chỉ gắn với 1 dạng đề.</p>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">BẢNG TRA NHANH — 10 DẠNG ĐỀ TRƯỚC KHI THỰC CHIẾN</div>\n<div class=\"card\">\n  <table class=\"vt\">\n    <tr><th>Dạng đề</th><th>Dấu hiệu nhận biết nhanh</th></tr>\n    <tr><td>True/False/Not Given</td><td>Kiểm tra SỰ KIỆN khách quan trong bài tường thuật</td></tr>\n    <tr><td>Yes/No/Not Given</td><td>Kiểm tra Ý KIẾN tác giả trong bài tranh luận</td></tr>\n    <tr><td>Multiple Choice</td><td>4+ lựa chọn A-D, có thể hỏi chi tiết hoặc ý chính</td></tr>\n    <tr><td>Note/Table/Flow-chart/Diagram</td><td>Điền từ vào ghi chú/bảng/sơ đồ, luôn có giới hạn số từ</td></tr>\n    <tr><td>Summary Completion</td><td>Đoạn tóm tắt có chỗ trống, có/không ngân hàng từ</td></tr>\n    <tr><td>Sentence Completion</td><td>Hoàn thành câu — chọn vế câu hoặc tự điền từ</td></tr>\n    <tr><td>Matching Headings</td><td>Nối đoạn văn ↔ tiêu đề, số tiêu đề luôn nhiều hơn số đoạn</td></tr>\n    <tr><td>Matching Information</td><td>Tìm đoạn chứa 1 chi tiết cụ thể, được dùng lại chữ cái</td></tr>\n    <tr><td>Matching Features</td><td>Nối đặc điểm ↔ tên người/tổ chức cụ thể</td></tr>\n    <tr><td>Short Answer Questions</td><td>Trả lời bằng từ nghi vấn, đáp án phải trích nguyên văn</td></tr>\n  </table>\n</div>\n<div class=\"note-card\">🏁 <b>Em đã đi qua toàn bộ \"luật chơi\" của 10 dạng đề.</b> Bài tổng ôn bên tab \"Luyện nhận diện\" sẽ trộn ngẫu nhiên tình huống của cả 10 dạng — làm tốt bài này nghĩa là em đã sẵn sàng bước vào làm đề thật.</div>\n";
+var QUIZ = [{"q": "Câu hỏi hỏi \"What is the standard term used to describe this behaviour?\" và đáp án đúng là cụm từ \"(the) norm\" trích nguyên văn từ bài. Nếu em viết lại là \"a normal thing\" (tự diễn đạt), kết quả sẽ ra sao?", "opts": ["Vẫn đúng vì cùng nghĩa", "Sai — Short Answer bắt buộc trích nguyên văn, không được tự diễn đạt lại"], "a": 1, "fb": ["Short Answer là dạng DUY NHẤT bắt buộc trích đúng nguyên văn, khác với mọi dạng khác.", "Đúng — đây là quy tắc riêng và quan trọng nhất của Short Answer Questions."]}, {"q": "Bài đọc nói \"Barn owls are skinnier than true owls\" nhưng câu hỏi nói \"Barn owls are fatter than true owls\". Đây là dạng đề nào và đáp án gì?", "opts": ["True/False/Not Given — False", "Yes/No/Not Given — No", "Matching Information — đoạn B", "Short Answer — skinnier"], "a": 0, "fb": ["Đúng — đây là bài tường thuật sự kiện khách quan (cân nặng loài cú), dùng T/F/NG, và câu hỏi bị đảo ngược nghĩa nên là False.", "Y/N/NG dùng cho bài tranh luận quan điểm tác giả, không phải sự kiện khách quan như thế này.", "Đây không phải câu hỏi tìm đoạn chứa chi tiết.", "Đây không phải câu hỏi dạng trích từ, mà là câu khẳng định cần đánh giá đúng/sai."]}, {"q": "Một bài có 6 tiêu đề cho 3 đoạn văn (A, B, C), cần chọn tiêu đề phù hợp nhất cho mỗi đoạn. Đây là dạng đề nào?", "opts": ["Matching Headings", "Matching Information", "Matching Features", "Multiple Choice"], "a": 0, "fb": ["Đúng — đặc điểm nhận diện: nối ĐOẠN VĂN với TIÊU ĐỀ, số tiêu đề nhiều hơn số đoạn.", "Matching Information nối CÂU HỎI chi tiết với đoạn, không có \"tiêu đề\".", "Matching Features nối với TÊN NGƯỜI/tổ chức, không phải tiêu đề.", "Multiple Choice không có danh sách tiêu đề để nối với đoạn."]}, {"q": "Đề ghi \"NO MORE THAN TWO WORDS AND/OR A NUMBER\". Đáp án đúng ý là \"25 students\" (3 từ/ký tự: số + từ). Vì sao đây vẫn có thể SAI?", "opts": ["Vì \"25\" không được tính là từ", "Vì tổng số từ + số vượt quá giới hạn cho phép", "Vì phải viết số bằng chữ", "Đáp án này luôn đúng, không cần lo"], "a": 1, "fb": ["Số thường được tính là 1 đơn vị trong giới hạn, nhưng cần đếm tổng để không vượt quá.", "Đúng — luôn đếm kỹ tổng số từ/số theo đúng giới hạn đề cho, dù đúng nghĩa vẫn có thể sai vì vượt giới hạn.", "Không có quy tắc bắt buộc viết số bằng chữ.", "Giới hạn số từ luôn cần được kiểm tra cẩn thận, không nên chủ quan."]}, {"q": "Câu hỏi mô tả: \"tìm đoạn văn nhắc đến việc một quốc gia công bố luật bằng nhiều ngôn ngữ\", đề cho phép dùng lại chữ cái nhiều lần. Đây là dạng đề nào?", "opts": ["Matching Information", "Matching Headings", "Summary Completion", "Short Answer Questions"], "a": 0, "fb": ["Đúng — tìm đoạn chứa 1 chi tiết cụ thể, được dùng lại chữ cái, là đặc điểm riêng của Matching Information.", "Matching Headings là tìm Ý CHÍNH của cả đoạn, không phải 1 chi tiết cụ thể.", "Đây không phải điền từ vào đoạn tóm tắt.", "Đây không phải câu hỏi dùng từ nghi vấn cần trích nguyên văn."]}, {"q": "Trong một đoạn văn, 3 bảo tàng đều được mô tả là \"ấn tượng, nổi tiếng thế giới\". Câu hỏi yêu cầu nối đặc điểm riêng với đúng tên bảo tàng. Dạng đề này dễ sai nhất ở đâu?", "opts": ["Nhầm lẫn giữa các đối tượng có đặc điểm gần giống nhau", "Vượt giới hạn số từ", "Sai thì/sai thời điểm", "Đảo chiều nhân quả"], "a": 0, "fb": ["Đúng — đây là bẫy đặc trưng và khó nhất của Matching Features.", "Đây không phải dạng điền từ có giới hạn.", "Không liên quan tới thì/thời điểm trong tình huống này.", "Không liên quan tới quan hệ nhân quả trong tình huống này."]}, {"q": "Bài nói nghiên cứu \"has yet to determine\" (chưa xác định) một điều gì đó, nhưng câu hỏi khẳng định \"research has shown\" (đã chứng minh). Đây là dạng đề và đáp án gì?", "opts": ["True/False/NG — Not Given", "Yes/No/NG — No", "Matching Features — không khớp người nào", "Multiple Choice — Trái ngược hoàn toàn"], "a": 1, "fb": ["Đây là bài có yếu tố nghiên cứu/lập luận khoa học, phù hợp Y/N/NG hơn, và bài PHỦ ĐỊNH rõ điều này, không phải Not Given.", "Đúng — bẫy \"chưa xác định\" bị đọc thành \"đã xác định\", đáp án là No vì bài phủ định rõ ràng.", "Đây không phải tình huống nối tên người.", "Đây không phải tình huống 4 lựa chọn trắc nghiệm."]}, {"q": "Câu hỏi: \"Fortresses were built close to the battlefront.\" Lựa chọn này ĐÚNG về pháo đài La Mã ở đoạn 1, nhưng câu hỏi đang hỏi về pháo đài hình ngôi sao ở đoạn 3. Đây là dạng đề và bẫy gì?", "opts": ["Sentence Completion — đáp án đúng với đoạn khác", "Short Answer — tự diễn đạt lại", "Matching Headings — tiêu đề quá rộng", "True/False/NG — đối lập trực tiếp"], "a": 0, "fb": ["Đúng — đây là bẫy đặc trưng nhất của Sentence Completion dạng chọn vế câu (ending-list): đúng nội dung nhưng sai đoạn liên quan.", "Đây không phải câu hỏi dùng từ nghi vấn cần trích nguyên văn.", "Đây không phải tình huống nối tiêu đề với đoạn văn.", "Đây không phải câu khẳng định cần đánh giá true/false, mà là chọn vế câu phù hợp."]}, {"q": "Tổng kết: bẫy được coi là NGUY HIỂM NHẤT, xuất hiện lặp lại ở Multiple Choice, Matching Headings VÀ Sentence Completion là gì?", "opts": ["Từ vựng quá khó, học sinh không biết nghĩa", "Từ/ý CÓ THẬT trong bài nhưng bị gán sai đối tượng/đoạn/câu hỏi", "Bài đọc quá dài", "Thời gian làm bài quá ít"], "a": 1, "fb": ["Bẫy nguy hiểm nhất không phải do từ khó, mà do từ quen khiến học sinh mất cảnh giác.", "Đúng — \"từ quen sai chỗ\" là bẫy khó nhất vì học sinh thấy quen liền chọn mà không xác nhận lại ngữ cảnh.", "Độ dài bài đọc không phải là bẫy được phân tích trong các dạng đề này.", "Thời gian không phải là loại bẫy nội dung đang xét ở đây."]}, {"q": "Trước khi bước vào làm một đề thi thật (thực chiến), bước quan trọng nhất theo tinh thần của toàn bộ chuỗi tài liệu này là gì?", "opts": ["Học thuộc lòng càng nhiều từ vựng càng tốt", "Hiểu rõ luật chơi và bẫy đặc trưng của từng dạng đề trước, rồi mới luyện số lượng lớn", "Làm thật nhiều đề mà không cần hiểu lý thuyết trước", "Chỉ cần làm nhanh, không cần chính xác"], "a": 1, "fb": ["Học từ vựng quan trọng nhưng không phải là ưu tiên số 1 của giai đoạn này.", "Đúng — đây chính là triết lý xuyên suốt: \"hiểu luật chơi trước khi vào chơi\", rồi mới luyện số lượng.", "Luyện số lượng mà không hiểu bẫy dễ lặp lại lỗi sai liên tục.", "Tốc độ chỉ nên ưu tiên sau khi đã chắc về độ chính xác và nhận diện bẫy."]}];
+
+var answered = new Array(QUIZ.length).fill(false);
+var firstChoice = new Array(QUIZ.length).fill(-1);
+
+function enterLesson(){
+  var v = $("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  studentName = v;
+  $("gate").hidden = true;
+  $("appRoot").hidden = false;
+  $("tabs").hidden = false;
+  renderRead();
+}
+$("enterBtn").addEventListener("click", enterLesson);
+$("nameInput").addEventListener("keydown", function(e){ if(e.key === "Enter") enterLesson(); });
+
+function switchTab(name){
+  document.querySelectorAll("nav.tabs button").forEach(function(b){ b.classList.toggle("active", b.dataset.tab === name); });
+  $("tab-read").hidden = name !== "read";
+  $("tab-quiz").hidden = name !== "quiz";
+  if(name === "quiz") renderQuiz();
+}
+$("tabs").addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-tab]");
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+var readRendered = false;
+function renderRead(){
+  if(readRendered) return;
+  readRendered = true;
+  var root = $("tab-read");
+  root.innerHTML = READ_HTML;
+  root.querySelectorAll(".acc-h").forEach(function(h){
+    h.addEventListener("click", function(){
+      h.closest(".acc").classList.toggle("open");
+    });
+  });
+}
+
+var quizRendered = false;
+function renderQuiz(){
+  if(quizRendered) return;
+  quizRendered = true;
+  var root = $("tab-quiz");
+  var html = '<div class="card"><p style="color:var(--fg-dim)">Đọc kỹ rồi chọn đáp án. Lần chọn ĐẦU TIÊN được tính điểm — vẫn có thể chọn lại để xem giải thích và học thêm.</p></div>';
+  QUIZ.forEach(function(item, i){
+    html += '<div class="card qcard" data-qi="' + i + '">';
+    html += '<div class="qtext">Câu ' + (i+1) + '. ' + item.q + '</div>';
+    item.opts.forEach(function(opt, oi){
+      html += '<label class="opt" data-oi="' + oi + '"><input type="radio" name="q' + i + '" value="' + oi + '"><span>' + opt + '</span></label>';
+    });
+    html += '<div class="fb" data-fb></div></div>';
+  });
+  html += '<div class="card" id="submitCard"><button class="primary" id="submitBtn" disabled>Nộp bài (0/' + QUIZ.length + ')</button></div>';
+  root.innerHTML = html;
+
+  root.querySelectorAll(".qcard").forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    card.querySelectorAll(".opt").forEach(function(label){
+      label.addEventListener("click", function(){
+        var oi = parseInt(label.dataset.oi, 10);
+        if(!answered[qi]){ answered[qi] = true; firstChoice[qi] = oi; }
+        label.querySelector("input").checked = true;
+        var correctIdx = QUIZ[qi].a;
+        card.querySelectorAll(".opt").forEach(function(l, li){
+          l.classList.remove("correct","wrong");
+          if(li === correctIdx) l.classList.add("correct");
+          else if(li === oi) l.classList.add("wrong");
+        });
+        var fb = card.querySelector("[data-fb]");
+        fb.textContent = QUIZ[qi].fb[oi];
+        fb.className = "fb show " + (oi === correctIdx ? "good" : "bad");
+        updateSubmitBtn();
+      });
+    });
+  });
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  var done = answered.filter(Boolean).length;
+  var btn = $("submitBtn");
+  if(!btn) return;
+  btn.textContent = "Nộp bài (" + done + "/" + QUIZ.length + ")";
+  btn.disabled = done < QUIZ.length;
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitBtn") submitQuiz();
+});
+
+function score(){
+  var correct = 0;
+  for(var i=0;i<QUIZ.length;i++){ if(firstChoice[i] === QUIZ[i].a) correct++; }
+  return {correct: correct, total: QUIZ.length, pct: Math.round(correct/QUIZ.length*100)};
+}
+
+var SCRIPT_URL = "PASTE_SCRIPT_URL_HERE";
+
+async function submitQuiz(){
+  var s = score();
+  var root = $("tab-quiz");
+  var payload = { name: studentName, lesson: LESSON_ID, correct: s.correct, total: s.total, pct: s.pct, answers: firstChoice, submittedAt: new Date().toISOString() };
+  var savedMsg = "";
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    savedMsg = "Đã gửi kết quả cho giáo viên.";
+  } catch(err){
+    savedMsg = "Không gửi được tự động — em chụp màn hình kết quả gửi qua Zalo cho cô nhé.";
+  }
+  root.innerHTML = '<div class="card scorebox">'
+    + '<div style="color:var(--fg-dim)">Kết quả của ' + escapeHtml(studentName) + '</div>'
+    + '<div class="num">' + s.correct + '/' + s.total + '</div>'
+    + '<div style="color:var(--fg-dim); margin-bottom:10px">(' + s.pct + '%)</div>'
+    + '<p>' + (s.pct >= 75 ? 'Rất tốt! Em đã nắm chắc phần này. 🎉' : 'Em nên đọc lại tab "Đào sâu" một lần nữa trước khi làm đề thật nhé.') + '</p>'
+    + '<p class="note">' + savedMsg + '</p>'
+    + '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+})();
+</script>
+</body>
+</html>

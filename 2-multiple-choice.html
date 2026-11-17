@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Multiple Choice Chuyên Sâu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme: light; }
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#edeadf; --fg:#262319; --fg-dim:#696152;
+    --accent:#3a5f8a; --accent-fg:#ffffff; --accent-soft:#dbe6f0;
+    --ok:#2f7a4f; --ok-soft:#dcefe0; --bad:#b4302f; --bad-soft:#f6dcda;
+    --border:#ddd6c3; --shadow:0 1px 2px rgba(30,30,10,.06), 0 8px 24px rgba(30,30,10,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+      --accent:#8fb4e3; --accent-fg:#0f1f33; --accent-soft:#213449;
+      --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+      --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+    --accent:#8fb4e3; --accent-fg:#0f1f33; --accent-soft:#213449;
+    --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+    --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; margin:0; padding-inline:16px; padding-block:24px; line-height:1.55}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif; font-weight:600; text-wrap:balance; margin:0 0 .4em}
+  .wrap{max-width:760px; margin:0 auto}
+  p{margin:.5em 0}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px}
+  [hidden]{display:none!important}
+
+  #gate{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px}
+  #gate .box{max-width:380px; width:100%; text-align:center}
+  #gate input{width:100%; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); margin:14px 0}
+  #gate button{width:100%; font-size:16px; font-weight:600; padding:12px 14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  #gate .emoji{font-size:40px}
+
+  nav.tabs{display:flex; gap:8px; max-width:760px; margin:0 auto 16px; overflow-x:auto}
+  nav.tabs button{flex:1; white-space:nowrap; font:inherit; font-weight:600; font-size:14px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg-dim); cursor:pointer}
+  nav.tabs button.active{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+
+  .lede{color:var(--fg-dim); font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0 0 20px}
+  .groupTitle{font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-dim); margin:22px 0 10px; display:flex; align-items:center; gap:8px}
+  .groupTitle::after{content:""; flex:1; height:1px; background:var(--border)}
+
+  .acc{border:1px solid var(--border); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--surface)}
+  .acc-h{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; cursor:pointer; font-weight:600}
+  .acc-h .tag{font-size:.75rem; font-weight:600; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:999px; margin-right:8px}
+  .acc-h .chev{transition:transform .2s; color:var(--fg-dim); flex:0 0 auto}
+  .acc.open .acc-h .chev{transform:rotate(180deg)}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease}
+  .acc.open .acc-body{max-height:4000px}
+  .acc-inner{padding:0 16px 16px}
+  .acc-inner h4{font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-dim); margin:12px 0 6px}
+  .acc-inner ul{margin:0; padding-left:18px}
+  .acc-inner li{margin-bottom:8px}
+  .fixbox{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin-top:6px; font-size:.94rem}
+  .exbox{background:var(--surface-2); border-left:3px solid var(--accent); border-radius:8px; padding:8px 12px; margin:6px 0; font-size:.92rem}
+  .exbox b{color:var(--accent)}
+  table.vt{width:100%; border-collapse:collapse; font-size:.88rem; margin:8px 0}
+  table.vt th, table.vt td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--border)}
+  table.vt th{color:var(--fg-dim); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em}
+  .note-card{background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:14px; font-size:.95rem}
+
+  .qcard{margin-bottom:14px}
+  .qcard .qtext{font-weight:600; margin-bottom:10px}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{margin-top:3px}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .fb{display:none; margin-top:8px; padding:10px 12px; border-radius:10px; font-size:.92rem}
+  .fb.show{display:block}
+  .fb.good{background:var(--ok-soft); color:var(--ok)}
+  .fb.bad{background:var(--bad-soft); color:var(--bad)}
+  button.primary{font:inherit; font-weight:600; font-size:15px; padding:12px 18px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  button.primary:disabled{opacity:.5; cursor:not-allowed}
+  .scorebox{text-align:center; padding:24px 16px}
+  .scorebox .num{font-family:Fraunces,serif; font-size:2.6rem; color:var(--accent)}
+  .note{color:var(--fg-dim); font-size:.85rem; margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <div class="emoji">🎯</div>
+    <h1 style="font-size:1.4rem">Multiple Choice Chuyên Sâu</h1>
+    <p style="color:var(--fg-dim)">Nhập tên của em để bắt đầu nhé.</p>
+    <input id="nameInput" placeholder="Tên của em" autocomplete="off">
+    <button id="enterBtn">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" hidden>
+  <h1 style="font-size:1.5rem">Multiple Choice Chuyên Sâu</h1>
+  <p class="lede">8 kiểu bẫy của Multiple Choice — dạng đề mà bẫy khó nhất không dùng từ lạ, mà dùng chính từ CÓ THẬT trong bài nhưng đặt sai chỗ.</p>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-tab="read" class="active">📖 Đào sâu</button>
+  <button data-tab="quiz">🎯 Luyện nhận diện</button>
+</nav>
+
+<div class="wrap">
+<section id="tab-read"></section>
+<section id="tab-quiz" hidden></section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LESSON_ID = "sau-multiple-choice";
+var studentName = "";
+function $(id){ return document.getElementById(id); }
+
+var READ_HTML = "\n<div class=\"note-card\"><b>Cách ra đề:</b> câu hỏi + 4 (hoặc nhiều hơn) lựa chọn A, B, C, D. Có 2 kiểu hoàn toàn khác nhau: hỏi về MỘT CHI TIẾT cụ thể, hoặc hỏi về Ý CHÍNH/tiêu đề phù hợp cho cả bài (main topic, overall purpose, best title) — với kiểu thứ hai, phải tìm câu chủ đề của cả đoạn/bài, không tìm chi tiết lẻ.</div>\n\n<div class=\"acc open\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 1</span>Dùng lại từ có thật nhưng sai chủ thể</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Lựa chọn chứa nguyên văn cụm từ xuất hiện trong bài, nhưng gán cho đối tượng/thời điểm khác.</p>\n    <div class=\"exbox\">Cụm <b>\"brought...immigrants from Europe and Asia\"</b> CÓ trong bài, nhưng mô tả nhóm người đến SAU người Polynesia — không phải thứ người Polynesia \"mang theo\".</div>\n    <p class=\"fixbox\">⚠️ Đây là nhóm bẫy khó nhất — thấy từ quen không có nghĩa là đúng. Luôn hỏi: \"từ này đang nói về AI, ở THỜI ĐIỂM nào?\"</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 2</span>Nội dung không có trong bài</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Lựa chọn nghe hợp lý, đúng logic đời thường — nhưng bài hoàn toàn không nhắc tới.</p>\n    <div class=\"exbox\">Trong ví dụ về người Polynesia: 2 trong 4 lựa chọn nghe hợp lý nhưng không hề xuất hiện trong bài.</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 3</span>Trái ngược hoàn toàn</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Lựa chọn phủ định đúng những gì bài khẳng định.</p>\n    <div class=\"exbox\"><b>Lựa chọn sai:</b> \"governments did not act to stop the recession\" — bài nói chính phủ CÓ cố gắng hành động (dù thất bại).</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 4</span>Đánh tráo nguyên nhân chính ↔ chi tiết phụ</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu gốc chứa 2 ý trong 1 câu — lựa chọn sai lấy đúng chi tiết PHỤ làm nguyên nhân CHÍNH.</p>\n    <div class=\"exbox\">Nero đeo kính ngọc lục bảo vì <b>\"tốt cho mắt\"</b> (nguyên nhân chính) — không phải <b>\"để xem đấu trường\"</b> (chỉ là hoạt động ông làm trong lúc đeo kính).</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 5</span>Đánh tráo thuộc tính gần giống nhau</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Hai thuộc tính nghe liên quan bị hoán đổi cho nhau.</p>\n    <div class=\"exbox\"><b>\"huge number of emeralds\"</b> (số lượng) ↔ <b>\"emeralds were extremely large\"</b> (kích thước) — bài chỉ nói về kích thước, không nói về số lượng.</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 6</span>Đánh tráo gốc từ / nguồn gốc</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Nhầm A là nguồn gốc của B, trong khi thực ra A là nguồn gốc của C.</p>\n    <div class=\"exbox\">Từ Hy Lạp <b>\"smaragdus\"</b> là gốc của từ <b>\"emerald\"</b> — KHÔNG PHẢI gốc của từ <b>\"green\"</b>.</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 7</span>Suy diễn quá mức</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài chỉ nhắc chung chung, lựa chọn khẳng định một mối liên hệ cụ thể hơn bài thực sự nói.</p>\n    <div class=\"exbox\">Bài nhắc \"brain expansion\" chung chung — lựa chọn sai khẳng định cụ thể \"protein giúp phát triển não\", điều bài không hề nói rõ.</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 8</span>Khái quát hoá vượt phạm vi</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài giới hạn phạm vi hẹp, lựa chọn sai mở rộng thành phạm vi toàn bộ.</p>\n    <div class=\"exbox\">Bài nói chỉ khối THƯƠNG MẠI bị giới hạn dùng điện — lựa chọn sai nói TẤT CẢ việc dùng điện bị giới hạn.</div>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">CÁCH KHẮC PHỤC CHUNG</div>\n<div class=\"note-card\">Với MỖI lựa chọn, tự hỏi riêng: <b>\"cụm từ này có thật trong bài không — và nếu có, nó có đang mô tả ĐÚNG đối tượng/thời điểm câu hỏi đang hỏi không?\"</b> Không dừng lại khi thấy từ quen — phải xác nhận đúng ngữ cảnh. Loại trừ trước các lựa chọn \"nghe liên quan nhưng không trả lời đúng câu hỏi\" (bẫy 1, 4, 5, 6) — đây là nhóm khó nhất vì đều dùng từ/thông tin CÓ THẬT trong bài.</div>\n";
+var QUIZ = [{"q": "Bài viết: \"Nero wore emerald glasses because they were good for his eyes, and he wore them while watching the games.\" Lựa chọn sai: \"Nero wore emerald glasses to watch the games.\" Đây là kiểu bẫy nào?", "opts": ["Nội dung không có trong bài", "Đánh tráo nguyên nhân chính ↔ chi tiết phụ", "Trái ngược hoàn toàn", "Đánh tráo gốc từ"], "a": 1, "fb": ["Thông tin \"xem đấu trường\" CÓ trong bài, chỉ là không phải nguyên nhân chính.", "Đúng — lấy chi tiết phụ (xem đấu trường) làm nguyên nhân chính, trong khi nguyên nhân thật là \"tốt cho mắt\".", "Bài không phủ định điều này, chỉ là nhầm vai trò nguyên nhân.", "Không liên quan đến nguồn gốc từ ngữ."]}, {"q": "Bài chỉ nói ngọc lục bảo \"extremely large\" (rất lớn về kích thước). Lựa chọn sai nói \"a huge number of emeralds\" (số lượng rất nhiều). Đây là kiểu bẫy nào?", "opts": ["Đánh tráo thuộc tính gần giống nhau", "Suy diễn quá mức", "Khái quát hoá vượt phạm vi", "Đối lập trực tiếp"], "a": 0, "fb": ["Đúng — kích thước (size) và số lượng (number) là hai thuộc tính khác nhau, dễ bị hoán đổi.", "Không phải suy diễn thêm quan hệ mới, mà là đổi hẳn loại thuộc tính.", "Không liên quan tới mở rộng phạm vi.", "Bài không nói ngược lại, chỉ là nói về thuộc tính khác."]}, {"q": "Bài nói từ Hy Lạp \"smaragdus\" là gốc của từ \"emerald\". Lựa chọn sai nói \"smaragdus\" là gốc của từ \"green\". Đây là kiểu bẫy nào?", "opts": ["Đánh tráo gốc từ / nguồn gốc", "Nội dung không có trong bài", "Đánh tráo nguyên nhân chính ↔ phụ", "Trái ngược hoàn toàn"], "a": 0, "fb": ["Đúng — nhầm A là nguồn gốc của B trong khi A thực ra là nguồn gốc của C (một từ khác).", "Thông tin về \"smaragdus\" CÓ trong bài, chỉ là bị gán sai đối tượng.", "Không liên quan tới nguyên nhân-kết quả.", "Bài không phủ định, chỉ là gán nhầm đối tượng."]}, {"q": "Bài chỉ giới hạn: \"commercial use of electricity was restricted\" (chỉ khối thương mại). Lựa chọn sai nói \"all use of electricity was restricted\" (tất cả). Đây là kiểu bẫy nào?", "opts": ["Khái quát hoá vượt phạm vi", "Đánh tráo thuộc tính", "Suy diễn quá mức", "Nội dung không có trong bài"], "a": 0, "fb": ["Đúng — mở rộng từ phạm vi hẹp (thương mại) thành phạm vi toàn bộ (tất cả).", "Không phải đổi loại thuộc tính, mà là mở rộng phạm vi.", "Suy diễn quá mức là thêm một mối liên hệ cụ thể hơn, không phải mở rộng phạm vi.", "Nội dung này thực ra bắt nguồn từ bài, chỉ bị mở rộng sai."]}, {"q": "Câu hỏi hỏi về \"ý chính / tiêu đề phù hợp nhất cho cả bài\" (main topic). Cách làm đúng là gì?", "opts": ["Tìm chi tiết nhỏ nhất trong bài", "Tìm câu chủ đề của cả đoạn/bài, không tìm chi tiết lẻ", "Chọn lựa chọn dài nhất", "Chọn lựa chọn có nhiều từ khó nhất"], "a": 1, "fb": ["Tìm chi tiết nhỏ là cách làm cho câu hỏi về CHI TIẾT cụ thể, không phải câu hỏi ý chính.", "Đúng — câu hỏi về ý chính/tiêu đề cần nhìn tổng thể, không chỉ 1 chi tiết.", "Độ dài lựa chọn không liên quan tới việc đúng/sai.", "Độ khó từ vựng không phải tiêu chí chọn đáp án."]}, {"q": "Bài nói chung chung \"the brain expanded over time\" (não phát triển theo thời gian). Lựa chọn sai khẳng định cụ thể \"protein intake caused brain expansion\" (ăn protein gây ra phát triển não) dù bài không nói rõ mối liên hệ này. Đây là kiểu bẫy nào?", "opts": ["Suy diễn quá mức từ từ khoá liên quan", "Đánh tráo gốc từ", "Đối lập trực tiếp", "Khái quát hoá vượt phạm vi"], "a": 0, "fb": ["Đúng — bài chỉ nhắc chung chung, lựa chọn khẳng định một mối liên hệ cụ thể hơn bài thực sự nói.", "Không liên quan tới nguồn gốc từ ngữ.", "Bài không phủ định điều này.", "Đây không phải việc mở rộng phạm vi, mà là thêm một quan hệ nhân-quả cụ thể bài không nói."]}, {"q": "Lựa chọn trắc nghiệm chứa đúng cụm từ có trong bài đọc. Điều này có nghĩa lựa chọn đó chắc chắn đúng không?", "opts": ["Đúng, cứ thấy từ quen là chọn", "Sai — phải kiểm tra từ đó có đang nói đúng đối tượng/thời điểm câu hỏi không"], "a": 1, "fb": ["Đây chính là bẫy phổ biến và nguy hiểm nhất của Multiple Choice.", "Chính xác — đây là nguyên tắc khắc phục quan trọng nhất cho cả 8 kiểu bẫy."]}, {"q": "Bài nói chính phủ CÓ cố gắng hành động để ngăn suy thoái (dù thất bại). Lựa chọn sai nói \"governments did not act to stop the recession\". Đây là kiểu bẫy nào?", "opts": ["Trái ngược hoàn toàn", "Đánh tráo nguyên nhân chính ↔ phụ", "Nội dung không có trong bài", "Đánh tráo thuộc tính"], "a": 0, "fb": ["Đúng — lựa chọn phủ định đúng những gì bài khẳng định.", "Không liên quan tới nguyên nhân-kết quả trong một câu.", "Thông tin này thực ra có bàn tới trong bài, chỉ bị nói ngược lại.", "Không liên quan tới hoán đổi thuộc tính."]}];
+
+var answered = new Array(QUIZ.length).fill(false);
+var firstChoice = new Array(QUIZ.length).fill(-1);
+
+function enterLesson(){
+  var v = $("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  studentName = v;
+  $("gate").hidden = true;
+  $("appRoot").hidden = false;
+  $("tabs").hidden = false;
+  renderRead();
+}
+$("enterBtn").addEventListener("click", enterLesson);
+$("nameInput").addEventListener("keydown", function(e){ if(e.key === "Enter") enterLesson(); });
+
+function switchTab(name){
+  document.querySelectorAll("nav.tabs button").forEach(function(b){ b.classList.toggle("active", b.dataset.tab === name); });
+  $("tab-read").hidden = name !== "read";
+  $("tab-quiz").hidden = name !== "quiz";
+  if(name === "quiz") renderQuiz();
+}
+$("tabs").addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-tab]");
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+var readRendered = false;
+function renderRead(){
+  if(readRendered) return;
+  readRendered = true;
+  var root = $("tab-read");
+  root.innerHTML = READ_HTML;
+  root.querySelectorAll(".acc-h").forEach(function(h){
+    h.addEventListener("click", function(){
+      h.closest(".acc").classList.toggle("open");
+    });
+  });
+}
+
+var quizRendered = false;
+function renderQuiz(){
+  if(quizRendered) return;
+  quizRendered = true;
+  var root = $("tab-quiz");
+  var html = '<div class="card"><p style="color:var(--fg-dim)">Đọc kỹ rồi chọn đáp án. Lần chọn ĐẦU TIÊN được tính điểm — vẫn có thể chọn lại để xem giải thích và học thêm.</p></div>';
+  QUIZ.forEach(function(item, i){
+    html += '<div class="card qcard" data-qi="' + i + '">';
+    html += '<div class="qtext">Câu ' + (i+1) + '. ' + item.q + '</div>';
+    item.opts.forEach(function(opt, oi){
+      html += '<label class="opt" data-oi="' + oi + '"><input type="radio" name="q' + i + '" value="' + oi + '"><span>' + opt + '</span></label>';
+    });
+    html += '<div class="fb" data-fb></div></div>';
+  });
+  html += '<div class="card" id="submitCard"><button class="primary" id="submitBtn" disabled>Nộp bài (0/' + QUIZ.length + ')</button></div>';
+  root.innerHTML = html;
+
+  root.querySelectorAll(".qcard").forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    card.querySelectorAll(".opt").forEach(function(label){
+      label.addEventListener("click", function(){
+        var oi = parseInt(label.dataset.oi, 10);
+        if(!answered[qi]){ answered[qi] = true; firstChoice[qi] = oi; }
+        label.querySelector("input").checked = true;
+        var correctIdx = QUIZ[qi].a;
+        card.querySelectorAll(".opt").forEach(function(l, li){
+          l.classList.remove("correct","wrong");
+          if(li === correctIdx) l.classList.add("correct");
+          else if(li === oi) l.classList.add("wrong");
+        });
+        var fb = card.querySelector("[data-fb]");
+        fb.textContent = QUIZ[qi].fb[oi];
+        fb.className = "fb show " + (oi === correctIdx ? "good" : "bad");
+        updateSubmitBtn();
+      });
+    });
+  });
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  var done = answered.filter(Boolean).length;
+  var btn = $("submitBtn");
+  if(!btn) return;
+  btn.textContent = "Nộp bài (" + done + "/" + QUIZ.length + ")";
+  btn.disabled = done < QUIZ.length;
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitBtn") submitQuiz();
+});
+
+function score(){
+  var correct = 0;
+  for(var i=0;i<QUIZ.length;i++){ if(firstChoice[i] === QUIZ[i].a) correct++; }
+  return {correct: correct, total: QUIZ.length, pct: Math.round(correct/QUIZ.length*100)};
+}
+
+var SCRIPT_URL = "PASTE_SCRIPT_URL_HERE";
+
+async function submitQuiz(){
+  var s = score();
+  var root = $("tab-quiz");
+  var payload = { name: studentName, lesson: LESSON_ID, correct: s.correct, total: s.total, pct: s.pct, answers: firstChoice, submittedAt: new Date().toISOString() };
+  var savedMsg = "";
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    savedMsg = "Đã gửi kết quả cho giáo viên.";
+  } catch(err){
+    savedMsg = "Không gửi được tự động — em chụp màn hình kết quả gửi qua Zalo cho cô nhé.";
+  }
+  root.innerHTML = '<div class="card scorebox">'
+    + '<div style="color:var(--fg-dim)">Kết quả của ' + escapeHtml(studentName) + '</div>'
+    + '<div class="num">' + s.correct + '/' + s.total + '</div>'
+    + '<div style="color:var(--fg-dim); margin-bottom:10px">(' + s.pct + '%)</div>'
+    + '<p>' + (s.pct >= 75 ? 'Rất tốt! Em đã nắm chắc phần này. 🎉' : 'Em nên đọc lại tab "Đào sâu" một lần nữa trước khi làm đề thật nhé.') + '</p>'
+    + '<p class="note">' + savedMsg + '</p>'
+    + '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+})();
+</script>
+</body>
+</html>

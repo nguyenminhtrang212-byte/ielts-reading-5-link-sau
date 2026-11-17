@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bẫy T/F/NG · Y/N/NG Chuyên Sâu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme: light; }
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#edeadf; --fg:#262319; --fg-dim:#696152;
+    --accent:#8a4f3a; --accent-fg:#ffffff; --accent-soft:#f0ddd2;
+    --ok:#2f7a4f; --ok-soft:#dcefe0; --bad:#b4302f; --bad-soft:#f6dcda;
+    --border:#ddd6c3; --shadow:0 1px 2px rgba(30,30,10,.06), 0 8px 24px rgba(30,30,10,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+      --accent:#e3a07e; --accent-fg:#1f1109; --accent-soft:#3a2a1d;
+      --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+      --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+    --accent:#e3a07e; --accent-fg:#1f1109; --accent-soft:#3a2a1d;
+    --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+    --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; margin:0; padding-inline:16px; padding-block:24px; line-height:1.55}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif; font-weight:600; text-wrap:balance; margin:0 0 .4em}
+  .wrap{max-width:760px; margin:0 auto}
+  p{margin:.5em 0}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px}
+  [hidden]{display:none!important}
+
+  #gate{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px}
+  #gate .box{max-width:380px; width:100%; text-align:center}
+  #gate input{width:100%; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); margin:14px 0}
+  #gate button{width:100%; font-size:16px; font-weight:600; padding:12px 14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  #gate .emoji{font-size:40px}
+
+  nav.tabs{display:flex; gap:8px; max-width:760px; margin:0 auto 16px; overflow-x:auto}
+  nav.tabs button{flex:1; white-space:nowrap; font:inherit; font-weight:600; font-size:14px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg-dim); cursor:pointer}
+  nav.tabs button.active{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+
+  .lede{color:var(--fg-dim); font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0 0 20px}
+  .groupTitle{font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--fg-dim); margin:22px 0 10px; display:flex; align-items:center; gap:8px}
+  .groupTitle::after{content:""; flex:1; height:1px; background:var(--border)}
+
+  .acc{border:1px solid var(--border); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--surface)}
+  .acc-h{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; cursor:pointer; font-weight:600}
+  .acc-h .tag{font-size:.75rem; font-weight:600; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:999px; margin-right:8px}
+  .acc-h .chev{transition:transform .2s; color:var(--fg-dim); flex:0 0 auto}
+  .acc.open .acc-h .chev{transform:rotate(180deg)}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease}
+  .acc.open .acc-body{max-height:4000px}
+  .acc-inner{padding:0 16px 16px}
+  .acc-inner h4{font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--fg-dim); margin:12px 0 6px}
+  .acc-inner ul{margin:0; padding-left:18px}
+  .acc-inner li{margin-bottom:8px}
+  .fixbox{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin-top:6px; font-size:.94rem}
+  .exbox{background:var(--surface-2); border-left:3px solid var(--accent); border-radius:8px; padding:8px 12px; margin:6px 0; font-size:.92rem}
+  .exbox b{color:var(--accent)}
+  table.vt{width:100%; border-collapse:collapse; font-size:.88rem; margin:8px 0}
+  table.vt th, table.vt td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--border)}
+  table.vt th{color:var(--fg-dim); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em}
+  .note-card{background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:14px; font-size:.95rem}
+
+  .qcard{margin-bottom:14px}
+  .qcard .qtext{font-weight:600; margin-bottom:10px}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{margin-top:3px}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .fb{display:none; margin-top:8px; padding:10px 12px; border-radius:10px; font-size:.92rem}
+  .fb.show{display:block}
+  .fb.good{background:var(--ok-soft); color:var(--ok)}
+  .fb.bad{background:var(--bad-soft); color:var(--bad)}
+  button.primary{font:inherit; font-weight:600; font-size:15px; padding:12px 18px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  button.primary:disabled{opacity:.5; cursor:not-allowed}
+  .scorebox{text-align:center; padding:24px 16px}
+  .scorebox .num{font-family:Fraunces,serif; font-size:2.6rem; color:var(--accent)}
+  .note{color:var(--fg-dim); font-size:.85rem; margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <div class="emoji">🔍</div>
+    <h1 style="font-size:1.4rem">Bẫy T/F/NG · Y/N/NG Chuyên Sâu</h1>
+    <p style="color:var(--fg-dim)">Nhập tên của em để bắt đầu nhé.</p>
+    <input id="nameInput" placeholder="Tên của em" autocomplete="off">
+    <button id="enterBtn">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" hidden>
+  <h1 style="font-size:1.5rem">Bẫy T/F/NG · Y/N/NG Chuyên Sâu</h1>
+  <p class="lede">Đào sâu 2 dạng học sinh sai nhiều nhất: True/False/Not Given và Yes/No/Not Given — toàn bộ ví dụ là ví dụ THẬT, kèm ngân hàng paraphrase cốt lõi.</p>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-tab="read" class="active">📖 Đào sâu</button>
+  <button data-tab="quiz">🎯 Luyện nhận diện</button>
+</nav>
+
+<div class="wrap">
+<section id="tab-read"></section>
+<section id="tab-quiz" hidden></section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LESSON_ID = "sau-tfng-ynng";
+var studentName = "";
+function $(id){ return document.getElementById(id); }
+
+var READ_HTML = "\n<div class=\"note-card\"><b>Vì sao hai dạng này đáng sợ nhất?</b> Vì bẫy không nằm ở từ khó — mà ở việc một cụm từ RẤT QUEN bị đặt sai chỗ, sai thời điểm, hoặc sai mức độ. Mục tiêu của trang này: học cách \"bắt bài\" từng kiểu bẫy, không phải học thuộc câu trả lời.</div>\n\n<div class=\"groupTitle\">TRUE / FALSE / NOT GIVEN</div>\n\n<div class=\"acc open\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Cốt lõi</span>Bản chất &amp; quy trình 4 bước</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>T/F/NG kiểm tra <b>SỰ KIỆN khách quan</b> trong bài — không phải ý kiến tác giả (xem mục Y/N/NG để phân biệt).</p>\n    <ul>\n      <li><b>True</b>: câu hỏi và bài đọc thống nhất hoàn toàn, dù diễn đạt khác nhau.</li>\n      <li><b>False</b>: câu hỏi dùng cụm quen thuộc với bài, nhưng <b>nội dung đối lập</b>.</li>\n      <li><b>Not Given</b>: cụm từ nghe quen, nhưng bài <b>không xác nhận cũng không phủ nhận</b> đúng ý đó.</li>\n    </ul>\n    <h4>Quy trình 4 bước</h4>\n    <ul>\n      <li>1. Đọc câu hỏi trước, xác định từ khoá — làm từng câu một, không đọc gộp.</li>\n      <li>2. Tìm đoạn liên quan trong bài — nhớ: phần này gần như chắc chắn đã bị paraphrase.</li>\n      <li>3. Đối chiếu: cùng ý / ngược ý / hay bài không đủ dữ kiện?</li>\n      <li>4. Thứ tự câu hỏi luôn theo thứ tự xuất hiện trong bài — nếu \"lạc\", quay lại đoạn câu trước.</li>\n    </ul>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 1</span>Đối lập trực tiếp</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Một từ định lượng/tính chất bị đổi ngược nghĩa, phần còn lại giữ nguyên.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Barn owls are <b>fatter</b> than true owls.\"<br><b>Bài gốc:</b> \"Barn owls are...<b>skinnier</b> than their characteristically fluffy and round counterparts.\"<br><b>Đáp án:</b> False</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 2</span>Đảo chiều nhân–quả</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu hỏi đảo ngược ai là nguyên nhân / ai là kết quả.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Atari developed arcade games <b>using the profits from</b> home video games.\"<br><b>Thực tế:</b> lợi nhuận arcade mới tài trợ cho home console — chiều ngược lại.<br><b>Đáp án:</b> False</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 3</span>Hướng / số liệu bị đổi</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Một chi tiết định hướng, số liệu, địa danh bị đổi nhẹ.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"...tracks went <b>south</b>...\"<br><b>Bài gốc:</b> \"...heading <b>east</b> over the Sierra Nevada Mountains.\"<br><b>Đáp án:</b> False</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 4</span>Ví dụ → khẳng định tổng quát</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài nêu MỘT ví dụ cụ thể, câu hỏi khái quát hoá thành \"phổ biến nhất / luôn luôn\".</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"A list of words is <b>the most common</b> item used...\"<br><b>Bài gốc:</b> chỉ nói đây là MỘT ví dụ (\"such as a list of words\"), không xếp hạng mức độ phổ biến.<br><b>Đáp án:</b> Not Given</div>\n    <p class=\"fixbox\">⚠️ Đây là bẫy hay bị nhầm thành False nhất vì \"nghe rất quen\". Gạch chân mọi từ giới hạn phạm vi: \"the most\", \"only\", \"always\".</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 5</span>Sai thì / sai thời điểm</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài nói về QUÁ KHỨ, câu hỏi hỏi về HIỆN TẠI (hoặc ngược lại).</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Rainfall is currently <b>not possible</b> on Mars.\"<br><b>Bài gốc:</b> \"Mars experienced...rainfall <b>several billion years ago</b>\" — không nói gì về hiện tại.<br><b>Đáp án:</b> Not Given</div>\n    <p class=\"fixbox\">⚠️ Gạch chân các từ thời gian: \"currently\", \"recently\", \"so far\" — ở CẢ câu hỏi lẫn câu gốc.</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 6</span>Từ giới hạn tuyệt đối</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu hỏi thu hẹp thành \"chỉ một / duy nhất\", bài gốc liệt kê nhiều hơn.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Cotton became America's <b>biggest</b> industry...\" — bài gốc không xếp hạng.<br>Hoặc: \"Cancer is <b>the only</b> disease...\" — bài liệt kê 4 trong 5 bệnh.<br><b>Đáp án:</b> Not Given / False tuỳ bối cảnh</div>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">YES / NO / NOT GIVEN</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">So sánh</span>Khác gì với T/F/NG?</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <table class=\"vt\">\n      <tr><th></th><th>True/False/NG</th><th>Yes/No/NG</th></tr>\n      <tr><td>Kiểm tra gì</td><td>SỰ KIỆN khách quan</td><td>Ý KIẾN/LẬP LUẬN của tác giả</td></tr>\n      <tr><td>Dấu hiệu bài đọc</td><td>Tường thuật, miêu tả, lịch sử</td><td>Tranh luận — \"the writer argues/believes\"</td></tr>\n      <tr><td>Not Given nghĩa là</td><td>Bài không nhắc đúng chi tiết đó</td><td>Tác giả không phát biểu rõ quan điểm</td></tr>\n    </table>\n    <p class=\"fixbox\">💡 Câu hỏi gốc trước khi làm: \"Đoạn này đang KỂ SỰ THẬT, hay đang THUYẾT PHỤC tôi tin điều gì?\" — nếu là thuyết phục, chuyển sang tư duy \"tác giả nghĩ gì\".</p>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 1</span>Phủ định quan điểm</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu hỏi khẳng định điều tác giả phản đối.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"It is essential...to use the polygraph.\"<br><b>Bài gốc:</b> \"...the polygraph <b>should be abandoned</b>...\"<br><b>Đáp án:</b> No</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 2</span>Gán sai nguyên nhân</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Câu hỏi gán một nguyên nhân mà tác giả đã bác bỏ.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"People's body odour makes others stay away.\"<br><b>Bài gốc:</b> \"...<b>not</b> due to body odour...but rather to an invisible boundary.\"<br><b>Đáp án:</b> No</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 3</span>\"Chưa xác định\" → \"đã xác định\"</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài nói nghiên cứu CHƯA có kết luận, câu hỏi khẳng định đã có.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Research has <b>shown</b>...\"<br><b>Bài gốc:</b> \"...research <b>has yet to determine</b> if...\"<br><b>Đáp án:</b> No</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 4</span>Đảo chiều một quá trình</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Bài mô tả quá trình chỉ đi MỘT chiều, câu hỏi đảo chiều.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Memories can move <b>from long-term to short-term</b>.\"<br><b>Bài gốc:</b> chỉ đi acquisition → short-term → long-term.<br><b>Đáp án:</b> No</div>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Bẫy 5</span>\"Not all/always\" bị đọc thành phủ định tuyệt đối</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Tác giả dùng phủ định MỘT PHẦN, câu hỏi diễn đạt lại gần như y hệt — đây KHÔNG phải bẫy sai, cần phân biệt.</p>\n    <div class=\"exbox\"><b>Câu hỏi:</b> \"Not all of the benefits...are guaranteed.\"<br><b>Bài gốc:</b> \"...advantages are <b>not always</b> assured.\"<br><b>Đáp án:</b> Yes (vì ý khớp — đừng tự động nghi ngờ chỉ vì thấy chữ \"not\")</div>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">BẪY PARAPHRASE GIẢ (áp dụng cho cả hai dạng)</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Quan trọng</span>Trông giống nhưng nghĩa khác</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <p>Đây không phải cặp đồng nghĩa — là cặp <b>trông giống nhưng nghĩa khác</b>. Nhầm hai cái này là lỗi hay gặp nhất ở học sinh khá.</p>\n    <div class=\"exbox\"><b>\"simultaneously\"</b> (cùng lúc) <b>≠</b> <b>\"worked together\"</b> (hợp tác) — hai việc xảy ra cùng thời điểm không có nghĩa là có hợp tác hay nhân quả. → Not Given, không phải True.</div>\n    <div class=\"exbox\"><b>\"mentioned/related to\"</b> (được nhắc đến) <b>≠</b> <b>\"confirmed\"</b> (được xác nhận) — bài nhắc đến chủ đề không có nghĩa là xác nhận đúng chi tiết câu hỏi hỏi.</div>\n    <p class=\"fixbox\">💡 Ghi nhớ: \"cùng lúc\" không phải \"cùng nhau\"; \"liên quan đến\" không phải \"gây ra\"; \"được nhắc đến\" không phải \"được xác nhận\".</p>\n  </div></div>\n</div>\n\n<div class=\"groupTitle\">NGÂN HÀNG PARAPHRASE — TẦNG 1 (học chủ động)</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Tính từ</span>Nhóm dễ gây bẫy False nhất</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <table class=\"vt\">\n      <tr><th>Câu hỏi</th><th>Bài đọc</th><th>Nghĩa</th></tr>\n      <tr><td>abandoned</td><td>derelict</td><td>bị bỏ hoang</td></tr>\n      <tr><td>fat / fatter</td><td>skinny / plump / stout</td><td>béo / gầy</td></tr>\n      <tr><td>common / widespread</td><td>prevalent</td><td>phổ biến</td></tr>\n      <tr><td>declining / falling</td><td>dwindling / diminishing</td><td>suy giảm</td></tr>\n      <tr><td>dangerous</td><td>hazardous / perilous</td><td>nguy hiểm</td></tr>\n      <tr><td>huge / large</td><td>immense / substantial</td><td>to lớn, đáng kể</td></tr>\n      <tr><td>unique</td><td>distinct / distinctive</td><td>riêng biệt, đặc trưng</td></tr>\n    </table>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Động từ</span>Nhóm cốt lõi quyết định True/False</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <table class=\"vt\">\n      <tr><th>Câu hỏi</th><th>Bài đọc</th><th>Nghĩa</th></tr>\n      <tr><td>increase</td><td>rise / grow / surge / soar</td><td>tăng</td></tr>\n      <tr><td>decrease</td><td>decline / drop / plummet</td><td>giảm</td></tr>\n      <tr><td>cause</td><td>lead to / result in / trigger</td><td>gây ra, dẫn đến</td></tr>\n      <tr><td>be linked to</td><td>be connected/associated with</td><td>có liên quan đến</td></tr>\n      <tr><td>be abandoned</td><td>be given up / be abolished</td><td>bị từ bỏ, bãi bỏ</td></tr>\n      <tr><td>raise questions about</td><td>make...questionable</td><td>đặt nghi vấn về</td></tr>\n    </table>\n  </div></div>\n</div>\n\n<div class=\"acc\">\n  <div class=\"acc-h\"><span><span class=\"tag\">Danh từ</span>Cụm danh từ hay gặp</span><span class=\"chev\">▾</span></div>\n  <div class=\"acc-body\"><div class=\"acc-inner\">\n    <table class=\"vt\">\n      <tr><th>Câu hỏi</th><th>Bài đọc</th><th>Nghĩa</th></tr>\n      <tr><td>threat</td><td>(major) problem</td><td>mối đe doạ, vấn đề nghiêm trọng</td></tr>\n      <tr><td>benefit / advantage</td><td>upside / merit</td><td>lợi ích</td></tr>\n      <tr><td>drawback</td><td>downside / disadvantage</td><td>hạn chế, nhược điểm</td></tr>\n      <tr><td>ability</td><td>capacity / capability</td><td>khả năng</td></tr>\n    </table>\n    <p class=\"fixbox\">💡 Chỉ cần NHẬN RA các cặp này khi gặp — chưa cần nhớ hết ngay. Gặp lại nhiều lần ở các bài sau sẽ quen dần.</p>\n  </div></div>\n</div>\n";
+var QUIZ = [{"q": "Câu hỏi: \"Barn owls are fatter than true owls.\" Bài gốc nói: \"Barn owls are...skinnier than their characteristically fluffy and round counterparts.\" Đáp án đúng là gì?", "opts": ["True", "False", "Not Given"], "a": 1, "fb": ["Bài gốc nói NGƯỢC LẠI (skinnier = gầy hơn, không phải fatter = béo hơn).", "Đúng — đây là bẫy đối lập trực tiếp: một từ bị đổi ngược nghĩa.", "Bài CÓ nhắc rõ ràng, chỉ là nói ngược lại — không phải Not Given."]}, {"q": "Câu hỏi: \"A list of words is the most common item used...\" nhưng bài gốc chỉ nói đây là MỘT ví dụ (\"such as a list of words\"), không xếp hạng mức độ phổ biến. Đáp án đúng?", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["Bài không hề xác nhận đây là \"phổ biến nhất\" — không thể chọn True.", "Bài không nói ngược lại — không phải False.", "Đúng — bài chỉ nêu một ví dụ, không xếp hạng mức độ phổ biến. Đây là bẫy 'ví dụ → khẳng định tổng quát'."]}, {"q": "Câu hỏi: \"Rainfall is currently not possible on Mars.\" Bài gốc: \"Mars experienced rainfall several billion years ago.\" Đáp án đúng?", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["Bài không nói gì về HIỆN TẠI, chỉ nói về quá khứ xa xưa — không đủ dữ kiện để chọn True.", "Bài không phủ định rõ ràng điều này — không phải False.", "Đúng — bẫy sai thời điểm: bài nói về quá khứ, câu hỏi hỏi về hiện tại, không đủ dữ kiện."]}, {"q": "Đây là bài đọc kiểu tranh luận, có cụm \"the writer argues that...\". Dạng câu hỏi phù hợp nhất để kiểm tra ý trong bài này là gì?", "opts": ["True/False/Not Given", "Yes/No/Not Given", "Multiple Choice"], "a": 1, "fb": ["T/F/NG dùng cho bài tường thuật sự kiện khách quan, không phải bài tranh luận quan điểm.", "Đúng — bài có tính tranh luận, lập luận của tác giả → dùng Yes/No/Not Given.", "Multiple Choice không phải là dấu hiệu nhận biết của loại bài đọc này."]}, {"q": "Câu hỏi: \"It is essential to use the polygraph.\" Bài gốc: \"...the polygraph should be abandoned...\" Đáp án đúng (Yes/No/NG)?", "opts": ["Yes", "No", "Not Given"], "a": 1, "fb": ["Tác giả phản đối việc dùng polygraph — không thể là Yes.", "Đúng — tác giả cho rằng nên từ bỏ polygraph, ngược hẳn với \"essential to use\".", "Bài có nêu rõ quan điểm, không phải Not Given."]}, {"q": "Câu hỏi: \"Research has shown that...\" Bài gốc: \"...research has yet to determine if...\" Đáp án đúng?", "opts": ["Yes", "No", "Not Given"], "a": 1, "fb": ["Bài nói nghiên cứu CHƯA xác định được — không thể là Yes.", "Đúng — bẫy 'chưa xác định' bị đọc thành 'đã xác định'.", "Bài có nói rõ (chưa xác định), không phải Not Given."]}, {"q": "Câu hỏi: \"Not all of the benefits are guaranteed.\" Bài gốc: \"...advantages are not always assured.\" Đáp án đúng?", "opts": ["Yes", "No", "Not Given"], "a": 0, "fb": ["Đúng — hai câu cùng ý (phủ định một phần), không phải bẫy sai dù có chữ \"not\".", "Đây KHÔNG phải bẫy sai — ý hai câu khớp nhau hoàn toàn.", "Bài có nói rõ ý này — không phải Not Given."]}, {"q": "Hai nhà khoa học công bố phát minh \"simultaneously\" (cùng lúc). Câu hỏi khẳng định họ \"worked together\" (hợp tác với nhau). Đáp án đúng (T/F/NG)?", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["\"Cùng lúc\" không có nghĩa là \"hợp tác\" — không đủ dữ kiện để khẳng định.", "Bài không phủ định việc hợp tác, chỉ là không xác nhận — không phải False.", "Đúng — đây là bẫy paraphrase giả: 'simultaneously' ≠ 'worked together'."]}, {"q": "Bài chỉ \"mentioned\" (nhắc đến) một chủ đề, câu hỏi khẳng định chủ đề đó đã được \"confirmed\" (xác nhận cụ thể). Đáp án đúng?", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["Nhắc đến không có nghĩa là xác nhận chi tiết cụ thể — chưa đủ để chọn True.", "Bài không phủ định, chỉ là chưa xác nhận rõ — không phải False.", "Đúng — 'được nhắc đến' không phải là 'được xác nhận'. Đây là cơ chế gốc của phần lớn bẫy Not Given."]}, {"q": "Câu hỏi: \"Cotton became America's biggest industry.\" Bài gốc không hề xếp hạng ngành công nghiệp nào là lớn nhất. Đáp án đúng?", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["Bài không xác nhận \"biggest\" — không đủ để chọn True.", "Bài không phủ định điều này — không phải False.", "Đúng — bẫy từ giới hạn tuyệt đối: câu hỏi thêm từ \"biggest\" mà bài không hề xếp hạng."]}];
+
+var answered = new Array(QUIZ.length).fill(false);
+var firstChoice = new Array(QUIZ.length).fill(-1);
+
+function enterLesson(){
+  var v = $("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  studentName = v;
+  $("gate").hidden = true;
+  $("appRoot").hidden = false;
+  $("tabs").hidden = false;
+  renderRead();
+}
+$("enterBtn").addEventListener("click", enterLesson);
+$("nameInput").addEventListener("keydown", function(e){ if(e.key === "Enter") enterLesson(); });
+
+function switchTab(name){
+  document.querySelectorAll("nav.tabs button").forEach(function(b){ b.classList.toggle("active", b.dataset.tab === name); });
+  $("tab-read").hidden = name !== "read";
+  $("tab-quiz").hidden = name !== "quiz";
+  if(name === "quiz") renderQuiz();
+}
+$("tabs").addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-tab]");
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+
+var readRendered = false;
+function renderRead(){
+  if(readRendered) return;
+  readRendered = true;
+  var root = $("tab-read");
+  root.innerHTML = READ_HTML;
+  root.querySelectorAll(".acc-h").forEach(function(h){
+    h.addEventListener("click", function(){
+      h.closest(".acc").classList.toggle("open");
+    });
+  });
+}
+
+var quizRendered = false;
+function renderQuiz(){
+  if(quizRendered) return;
+  quizRendered = true;
+  var root = $("tab-quiz");
+  var html = '<div class="card"><p style="color:var(--fg-dim)">Đọc kỹ rồi chọn đáp án. Lần chọn ĐẦU TIÊN được tính điểm — vẫn có thể chọn lại để xem giải thích và học thêm.</p></div>';
+  QUIZ.forEach(function(item, i){
+    html += '<div class="card qcard" data-qi="' + i + '">';
+    html += '<div class="qtext">Câu ' + (i+1) + '. ' + item.q + '</div>';
+    item.opts.forEach(function(opt, oi){
+      html += '<label class="opt" data-oi="' + oi + '"><input type="radio" name="q' + i + '" value="' + oi + '"><span>' + opt + '</span></label>';
+    });
+    html += '<div class="fb" data-fb></div></div>';
+  });
+  html += '<div class="card" id="submitCard"><button class="primary" id="submitBtn" disabled>Nộp bài (0/' + QUIZ.length + ')</button></div>';
+  root.innerHTML = html;
+
+  root.querySelectorAll(".qcard").forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    card.querySelectorAll(".opt").forEach(function(label){
+      label.addEventListener("click", function(){
+        var oi = parseInt(label.dataset.oi, 10);
+        if(!answered[qi]){ answered[qi] = true; firstChoice[qi] = oi; }
+        label.querySelector("input").checked = true;
+        var correctIdx = QUIZ[qi].a;
+        card.querySelectorAll(".opt").forEach(function(l, li){
+          l.classList.remove("correct","wrong");
+          if(li === correctIdx) l.classList.add("correct");
+          else if(li === oi) l.classList.add("wrong");
+        });
+        var fb = card.querySelector("[data-fb]");
+        fb.textContent = QUIZ[qi].fb[oi];
+        fb.className = "fb show " + (oi === correctIdx ? "good" : "bad");
+        updateSubmitBtn();
+      });
+    });
+  });
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  var done = answered.filter(Boolean).length;
+  var btn = $("submitBtn");
+  if(!btn) return;
+  btn.textContent = "Nộp bài (" + done + "/" + QUIZ.length + ")";
+  btn.disabled = done < QUIZ.length;
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitBtn") submitQuiz();
+});
+
+function score(){
+  var correct = 0;
+  for(var i=0;i<QUIZ.length;i++){ if(firstChoice[i] === QUIZ[i].a) correct++; }
+  return {correct: correct, total: QUIZ.length, pct: Math.round(correct/QUIZ.length*100)};
+}
+
+var SCRIPT_URL = "PASTE_SCRIPT_URL_HERE";
+
+async function submitQuiz(){
+  var s = score();
+  var root = $("tab-quiz");
+  var payload = { name: studentName, lesson: LESSON_ID, correct: s.correct, total: s.total, pct: s.pct, answers: firstChoice, submittedAt: new Date().toISOString() };
+  var savedMsg = "";
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    savedMsg = "Đã gửi kết quả cho giáo viên.";
+  } catch(err){
+    savedMsg = "Không gửi được tự động — em chụp màn hình kết quả gửi qua Zalo cho cô nhé.";
+  }
+  root.innerHTML = '<div class="card scorebox">'
+    + '<div style="color:var(--fg-dim)">Kết quả của ' + escapeHtml(studentName) + '</div>'
+    + '<div class="num">' + s.correct + '/' + s.total + '</div>'
+    + '<div style="color:var(--fg-dim); margin-bottom:10px">(' + s.pct + '%)</div>'
+    + '<p>' + (s.pct >= 75 ? 'Rất tốt! Em đã nắm chắc phần này. 🎉' : 'Em nên đọc lại tab "Đào sâu" một lần nữa trước khi làm đề thật nhé.') + '</p>'
+    + '<p class="note">' + savedMsg + '</p>'
+    + '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+})();
+</script>
+</body>
+</html>
