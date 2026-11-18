@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Áp Dụng 2: Tranh Luận Về Máy Phát Hiện Nói Dối</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme: light; }
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#edeadf; --fg:#262319; --fg-dim:#696152;
+    --accent:#3b5a73; --accent-fg:#ffffff; --accent-soft:#dbe6ec;
+    --ok:#2f7a4f; --ok-soft:#dcefe0; --bad:#b4302f; --bad-soft:#f6dcda;
+    --border:#ddd6c3; --shadow:0 1px 2px rgba(30,30,10,.06), 0 8px 24px rgba(30,30,10,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+      --accent:#8fb4cc; --accent-fg:#111b22; --accent-soft:#223642;
+      --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+      --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+    --accent:#8fb4cc; --accent-fg:#111b22; --accent-soft:#223642;
+    --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+    --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; margin:0; padding-inline:16px; padding-block:24px; line-height:1.6}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif; font-weight:600; text-wrap:balance; margin:0 0 .4em}
+  .wrap{max-width:760px; margin:0 auto}
+  p{margin:.6em 0}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px}
+  [hidden]{display:none!important}
+
+  #gate{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px}
+  #gate .box{max-width:380px; width:100%; text-align:center}
+  #gate input{width:100%; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); margin:14px 0}
+  #gate button{width:100%; font-size:16px; font-weight:600; padding:12px 14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  #gate .emoji{font-size:40px}
+
+  .lede{color:var(--fg-dim); font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0 0 18px}
+  .pLabel{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:.78rem; margin-right:8px; flex:0 0 auto}
+  .pRow{display:flex; align-items:flex-start}
+  .gw{border-bottom:1.5px dotted var(--accent); color:var(--accent); font-weight:600; cursor:pointer}
+  .gw:hover{background:var(--accent-soft)}
+  #glossPop{position:fixed; max-width:280px; background:var(--surface); color:var(--fg); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:10px 12px; font-size:.86rem; z-index:60; display:none}
+  #glossPop .gw-word{font-weight:700; margin-bottom:3px}
+  #glossPop .gw-ipa{color:var(--accent); font-family:ui-monospace,Menlo,monospace; margin-bottom:3px}
+  #glossPop .gw-vi{color:var(--fg-dim)}
+
+  .note-card{background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:.95rem}
+
+  .qcard .qtext{font-weight:600; margin-bottom:10px}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{margin-top:3px}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .fillInput{width:100%; font-size:16px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--fg)}
+  .fb{display:none; margin-top:8px; padding:10px 12px; border-radius:10px; font-size:.92rem}
+  .fb.show{display:block}
+  .fb.good{background:var(--ok-soft); color:var(--ok)}
+  .fb.bad{background:var(--bad-soft); color:var(--bad)}
+  button.primary{font:inherit; font-weight:600; font-size:15px; padding:11px 16px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  button.primary:disabled{opacity:.5; cursor:not-allowed}
+  .scorebox{text-align:center; padding:24px 16px}
+  .scorebox .num{font-family:Fraunces,serif; font-size:2.6rem; color:var(--accent)}
+  .note{color:var(--fg-dim); font-size:.85rem; margin-top:6px}
+</style>
+</head>
+<body>
+
+<div id="glossPop"></div>
+
+<div id="gate">
+  <div class="box">
+    <div class="emoji">🕵️</div>
+    <h1 style="font-size:1.4rem">Áp Dụng 2: Tranh Luận Về Máy Phát Hiện Nói Dối</h1>
+    <p style="color:var(--fg-dim)">Nhập tên của em để bắt đầu nhé.</p>
+    <input id="nameInput" placeholder="Tên của em" autocomplete="off">
+    <button id="enterBtn">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" hidden>
+  <h1 style="font-size:1.5rem">Áp Dụng 2: Tranh Luận Về Máy Phát Hiện Nói Dối</h1>
+  <p class="lede">Bài đọc mang tính tranh luận — đúng loại bài cần dùng Yes/No/Not Given, kết hợp cùng Multiple Choice, Họ Nối (tìm đoạn) và Trả lời ngắn.</p>
+  <div class="card" id="passageRoot"></div>
+  <div class="note-card">💡 Bấm vào <span class="gw" style="cursor:default">từ/cụm từ gạch chân cam</span> trong bài để xem phiên âm (IPA) và nghĩa tiếng Việt. Đọc kỹ cả bài một lượt rồi mới trả lời các câu hỏi dưới đây — đây là lúc áp dụng đúng kỹ thuật nhận diện bẫy em đã học ở các bài trước, không phải đoán mò.</div>
+  <div id="quizRoot"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LESSON_ID = "thuc-chien-2-polygraph";
+var studentName = "";
+function $(id){ return document.getElementById(id); }
+
+var PASSAGE_HTML = "\n<h2 style=\"font-size:1.1rem\">The Lie Detector Debate</h2>\n\n<div class=\"pRow\"><span class=\"pLabel\">A</span><p style=\"margin:0\">For several decades, some organisations — particularly those recruiting for positions of trust, such as security firms and certain government departments — have used the polygraph, commonly known as the lie detector, during the hiring process. The device measures <span class=\"gw\" data-ipa=\"/ˌfɪziəˈlɒdʒɪkl/\" data-vi=\"(thuộc) sinh lý học\">physiological</span> indicators such as heart rate, blood pressure, and <span class=\"gw\" data-ipa=\"/ˌpɜːspəˈreɪʃn/\" data-vi=\"sự đổ mồ hôi\">perspiration</span> while a candidate answers a series of questions, on the assumption that <span class=\"gw\" data-ipa=\"/dɪˈsepʃn/\" data-vi=\"sự lừa dối, nói dối\">deception</span> produces measurable stress responses that honesty does not.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">B</span><p style=\"margin:0\"><span class=\"gw\" data-ipa=\"/ˈædvəkəts/\" data-vi=\"những người ủng hộ\">Advocates</span> of the practice argue that the polygraph provides employers with an additional layer of screening that interviews alone cannot offer. A skilled interviewer may be deceived by a confident liar, they contend, whereas a machine measuring involuntary bodily responses is far harder to <span class=\"gw\" data-ipa=\"/məˈnɪpjʊleɪt/\" data-vi=\"điều khiển, lợi dụng, thao túng\">manipulate</span>. Proponents also point out that candidates are informed in advance and must give <span class=\"gw\" data-ipa=\"/kənˈsent/\" data-vi=\"sự đồng ý\">consent</span> before testing begins, so no one is <span class=\"gw\" data-ipa=\"/kəʊˈɜːst/\" data-vi=\"bị cưỡng ép, ép buộc\">coerced</span> into taking the examination.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">C</span><p style=\"margin:0\">Critics, however, argue that the <span class=\"gw\" data-ipa=\"/ˌsaɪənˈtɪfɪk ˈbeɪsɪs/\" data-vi=\"cơ sở khoa học\">scientific basis</span> for the polygraph is far weaker than many employers assume. A nervous but entirely honest candidate may produce physiological responses almost identical to those of someone who is lying, simply because of the <span class=\"gw\" data-ipa=\"/æŋˈzaɪəti/\" data-vi=\"sự lo lắng\">anxiety</span> of the interview itself. Several professional bodies representing psychologists have gone further, stating that polygraph results should not be treated as reliable evidence of honesty at all, and that the practice risks rejecting trustworthy candidates on the basis of anxiety rather than deception.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">D</span><p style=\"margin:0\">There is also an <span class=\"gw\" data-ipa=\"/ˈeθɪkl/\" data-vi=\"(thuộc) đạo đức\">ethical</span> dimension to the debate. Opponents claim that subjecting a job applicant to a polygraph test, however voluntary in name, places candidates under considerable pressure to <span class=\"gw\" data-ipa=\"/kəmˈplaɪ/\" data-vi=\"tuân theo, làm theo\">comply</span>, since refusal may itself be read as suspicious by the employer. For this reason, some <span class=\"gw\" data-ipa=\"/dʒʊərɪsˈdɪkʃnz/\" data-vi=\"khu vực pháp lý, phạm vi quyền hạn pháp lý\">jurisdictions</span> have introduced <span class=\"gw\" data-ipa=\"/ˌledʒɪsˈleɪʃn/\" data-vi=\"luật pháp, pháp luật\">legislation</span> restricting or banning the use of polygraph testing in employment decisions altogether, while others continue to permit it in a narrow range of occupations where national security is considered to <span class=\"gw\" data-ipa=\"/ˌaʊtˈweɪ/\" data-vi=\"có giá trị hơn, vượt trội hơn\">outweigh</span> these concerns.</p></div>\n";
+var QUIZ = [{"q": "Do the following statements agree with the claims of the writer in the passage? A polygraph test can be given to a job candidate without that person's agreement.", "opts": ["Yes", "No", "Not Given"], "a": 1, "fb": ["Bài nói ngược lại: candidates phải \"give consent before testing begins\", \"no one is coerced\" — không thể là Yes.", "Đúng — đoạn B khẳng định rõ phải có sự đồng ý (consent) trước, không ai bị cưỡng ép.", "Bài có nói rõ ràng (và ngược lại) — không phải Not Given."]}, {"q": "Do the following statements agree with the claims of the writer in the passage? An honest candidate can sometimes show the same physical signs as someone who is lying.", "opts": ["Yes", "No", "Not Given"], "a": 0, "fb": ["Đúng — đoạn C: \"A nervous but entirely honest candidate may produce physiological responses almost identical to those of someone who is lying.\"", "Bài không phủ định điều này — đây đúng là Yes.", "Bài có nói rõ ràng — không phải Not Given."]}, {"q": "Do the following statements agree with the claims of the writer in the passage? Every professional body representing psychologists has called for polygraph testing to be banned completely in all countries.", "opts": ["Yes", "No", "Not Given"], "a": 2, "fb": ["Bài chỉ nói \"several professional bodies\" cho rằng kết quả không đáng tin cậy — không đủ để khẳng định Yes.", "Bài không phủ định rõ ràng điều này — không phải No.", "Đúng — bẫy khái quát hoá: bài chỉ nói MỘT SỐ hội tâm lý học nghi ngờ độ tin cậy, không nói \"tất cả\" hội đều kêu gọi \"cấm hoàn toàn ở mọi quốc gia\". Hai từ tuyệt đối \"every\" và \"all countries\" là dấu hiệu của bẫy này."]}, {"q": "According to the passage, why do some critics doubt the scientific reliability of the polygraph?", "opts": ["The machine often breaks down during testing.", "Nervous but honest people can react physically in a similar way to liars.", "Candidates can easily learn how to trick the device.", "The test takes too long to complete accurately."], "a": 1, "fb": ["Bài không nói máy hay bị hỏng.", "Đúng — đoạn C: người trung thực nhưng lo lắng có thể cho ra phản ứng sinh lý giống người nói dối.", "Bài không nói về việc học cách đánh lừa máy.", "Bài không nhắc đến thời gian làm bài kiểm tra."]}, {"q": "What does the passage say about the legal status of polygraph testing in employment today?", "opts": ["It is completely banned everywhere.", "It is required by law in all government jobs.", "It varies: some places restrict or ban it, others still allow it in limited cases.", "It was banned in the past but has recently been made legal everywhere again."], "a": 2, "fb": ["Bài không nói bị cấm \"everywhere\".", "Bài không nói nó là yêu cầu bắt buộc theo luật ở mọi công việc nhà nước.", "Đúng — đoạn D: một số nơi cấm/hạn chế, một số nơi khác vẫn cho phép trong phạm vi hẹp (an ninh quốc gia).", "Bài không nói về việc từng bị cấm rồi hợp pháp hoá lại."]}, {"q": "Which paragraph presents the argument that agreeing to take the test may not feel like a completely free choice?", "opts": ["Paragraph A", "Paragraph B", "Paragraph C", "Paragraph D"], "a": 3, "fb": ["Đoạn A chỉ giới thiệu bối cảnh sử dụng polygraph, chưa nói đến áp lực tâm lý.", "Đoạn B thực ra nói ngược lại: nhấn mạnh có consent, không bị coerced.", "Đoạn C nói về độ tin cậy khoa học, không nói về áp lực phải đồng ý.", "Đúng — đoạn D: dù \"voluntary in name\", việc từ chối có thể bị xem là đáng nghi, nên candidate chịu áp lực phải đồng ý."]}, {"type": "fill", "q": "Complete the sentence using NO MORE THAN TWO WORDS from the passage: Supporters claim that a machine measuring involuntary bodily responses is harder to ____ than a human interviewer.", "accept": ["manipulate"], "note": "Đáp án đúng: \"manipulate\" (đoạn B)."}, {"type": "fill", "q": "Answer the question using ONE WORD from the passage: What must a candidate give before a polygraph test is allowed to begin?", "accept": ["consent"], "note": "Đáp án đúng: \"consent\" (đoạn B: \"must give consent before testing begins\")."}];
+
+var answered = new Array(QUIZ.length).fill(false);
+var rawAnswer = new Array(QUIZ.length).fill(null);
+var isCorrect = new Array(QUIZ.length).fill(false);
+
+function enterLesson(){
+  var v = $("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  studentName = v;
+  $("gate").hidden = true;
+  $("appRoot").hidden = false;
+  renderPassage();
+  renderQuiz();
+}
+$("enterBtn").addEventListener("click", enterLesson);
+$("nameInput").addEventListener("keydown", function(e){ if(e.key === "Enter") enterLesson(); });
+
+function renderPassage(){
+  $("passageRoot").innerHTML = PASSAGE_HTML;
+}
+
+function renderQuiz(){
+  var root = $("quizRoot");
+  var html = '<div class="card"><p style="color:var(--fg-dim); margin:0">Trả lời từng câu dựa trên bài đọc ở trên. Với câu trắc nghiệm, lần chọn ĐẦU TIÊN được tính điểm. Với câu điền từ, bấm "Kiểm tra" khi đã chắc chắn.</p></div>';
+  QUIZ.forEach(function(item, i){
+    var type = item.type || "mc";
+    html += '<div class="card qcard" data-qi="' + i + '" data-type="' + type + '">';
+    html += '<div class="qtext">Câu ' + (i+1) + '. ' + item.q + '</div>';
+    if(item.hint){ html += '<div class="note" style="margin-bottom:8px">' + item.hint + '</div>'; }
+    if(type === "fill"){
+      html += '<input type="text" class="fillInput" placeholder="Nhập câu trả lời bằng tiếng Anh..." autocomplete="off">';
+      html += '<div style="margin-top:8px"><button class="primary fillCheck">Kiểm tra</button></div>';
+      html += '<div class="fb" data-fb></div>';
+    } else {
+      item.opts.forEach(function(opt, oi){
+        html += '<label class="opt" data-oi="' + oi + '"><input type="radio" name="q' + i + '" value="' + oi + '"><span>' + opt + '</span></label>';
+      });
+      html += '<div class="fb" data-fb></div>';
+    }
+    html += '</div>';
+  });
+  html += '<div class="card" id="submitCard"><button class="primary" id="submitBtn" disabled>Nộp bài (0/' + QUIZ.length + ')</button></div>';
+  root.innerHTML = html;
+
+  root.querySelectorAll('.qcard[data-type="mc"]').forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    card.querySelectorAll(".opt").forEach(function(label){
+      label.addEventListener("click", function(){
+        var oi = parseInt(label.dataset.oi, 10);
+        if(!answered[qi]){ answered[qi] = true; rawAnswer[qi] = oi; isCorrect[qi] = (oi === QUIZ[qi].a); }
+        label.querySelector("input").checked = true;
+        var correctIdx = QUIZ[qi].a;
+        card.querySelectorAll(".opt").forEach(function(l, li){
+          l.classList.remove("correct","wrong");
+          if(li === correctIdx) l.classList.add("correct");
+          else if(li === oi) l.classList.add("wrong");
+        });
+        var fb = card.querySelector("[data-fb]");
+        fb.textContent = QUIZ[qi].fb[oi];
+        fb.className = "fb show " + (oi === correctIdx ? "good" : "bad");
+        updateSubmitBtn();
+      });
+    });
+  });
+
+  root.querySelectorAll('.qcard[data-type="fill"]').forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    var inp = card.querySelector(".fillInput");
+    var btn = card.querySelector(".fillCheck");
+    function doCheck(){
+      if(answered[qi]) return;
+      var val = inp.value.trim();
+      if(!val){ inp.focus(); return; }
+      answered[qi] = true;
+      rawAnswer[qi] = val;
+      var ok = QUIZ[qi].accept.some(function(a){ return a.toLowerCase() === val.toLowerCase(); });
+      isCorrect[qi] = ok;
+      inp.disabled = true;
+      btn.disabled = true;
+      inp.style.borderColor = ok ? "var(--ok)" : "var(--bad)";
+      var fb = card.querySelector("[data-fb]");
+      fb.textContent = (ok ? "✅ Đúng rồi! " : ("❌ Chưa đúng — đáp án đúng: \"" + QUIZ[qi].accept[0] + "\". ")) + (QUIZ[qi].note || "");
+      fb.className = "fb show " + (ok ? "good" : "bad");
+      updateSubmitBtn();
+    }
+    btn.addEventListener("click", doCheck);
+    inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); doCheck(); } });
+  });
+
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  var done = answered.filter(Boolean).length;
+  var btn = $("submitBtn");
+  if(!btn) return;
+  btn.textContent = "Nộp bài (" + done + "/" + QUIZ.length + ")";
+  btn.disabled = done < QUIZ.length;
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitBtn"){ submitQuiz(); return; }
+  var g = e.target.closest(".gw[data-ipa]");
+  if(g){ e.stopPropagation(); showGloss(g); return; }
+  if(!e.target.closest("#glossPop")) hideGloss();
+});
+
+function showGloss(el){
+  var word = el.textContent;
+  var ipa = el.dataset.ipa || "";
+  var vi = el.dataset.vi || "";
+  var pop = $("glossPop");
+  pop.innerHTML = '<div class="gw-word">' + escapeHtml(word) + '</div>'
+    + '<div class="gw-ipa">' + escapeHtml(ipa) + '</div>'
+    + '<div class="gw-vi">' + escapeHtml(vi) + '</div>';
+  pop.style.display = "block";
+  var r = el.getBoundingClientRect();
+  var pw = pop.offsetWidth, ph = pop.offsetHeight;
+  var left = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
+  var top = r.bottom + 6;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+}
+function hideGloss(){
+  var pop = $("glossPop");
+  if(pop) pop.style.display = "none";
+}
+
+function score(){
+  var correct = isCorrect.filter(Boolean).length;
+  return {correct: correct, total: QUIZ.length, pct: Math.round(correct/QUIZ.length*100)};
+}
+
+var SCRIPT_URL = "PASTE_SCRIPT_URL_HERE";
+
+async function submitQuiz(){
+  var s = score();
+  var root = $("quizRoot");
+  var payload = { name: studentName, lesson: LESSON_ID, correct: s.correct, total: s.total, pct: s.pct, answers: rawAnswer, submittedAt: new Date().toISOString() };
+  var savedMsg = "";
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    savedMsg = "Đã gửi kết quả cho giáo viên.";
+  } catch(err){
+    savedMsg = "Không gửi được tự động — em chụp màn hình kết quả gửi qua Zalo cho cô nhé.";
+  }
+  root.innerHTML = '<div class="card scorebox">'
+    + '<div style="color:var(--fg-dim)">Kết quả của ' + escapeHtml(studentName) + '</div>'
+    + '<div class="num">' + s.correct + '/' + s.total + '</div>'
+    + '<div style="color:var(--fg-dim); margin-bottom:10px">(' + s.pct + '%)</div>'
+    + '<p>' + (s.pct >= 75 ? 'Rất tốt! Em đã áp dụng khá chắc kỹ thuật đã học. 🎉' : 'Em nên đọc lại bài và các bài "Đào sâu" trước đó một lần nữa nhé.') + '</p>'
+    + '<p class="note">' + savedMsg + '</p>'
+    + '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+})();
+</script>
+</body>
+</html>

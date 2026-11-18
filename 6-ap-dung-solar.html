@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Áp Dụng 1: Đèn Đường Năng Lượng Mặt Trời</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme: light; }
+  :root{
+    --bg:#f6f4ee; --surface:#ffffff; --surface-2:#edeadf; --fg:#262319; --fg-dim:#696152;
+    --accent:#9a6a1f; --accent-fg:#ffffff; --accent-soft:#f3e3c6;
+    --ok:#2f7a4f; --ok-soft:#dcefe0; --bad:#b4302f; --bad-soft:#f6dcda;
+    --border:#ddd6c3; --shadow:0 1px 2px rgba(30,30,10,.06), 0 8px 24px rgba(30,30,10,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+      --accent:#e8bb6b; --accent-fg:#1f1709; --accent-soft:#4a3a1e;
+      --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+      --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17190f; --surface:#212418; --surface-2:#2a2e1f; --fg:#eeeee0; --fg-dim:#b1ad99;
+    --accent:#e8bb6b; --accent-fg:#1f1709; --accent-soft:#4a3a1e;
+    --ok:#7fcf9b; --ok-soft:#1f3327; --bad:#f09090; --bad-soft:#3a2321;
+    --border:#383a2c; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; margin:0; padding-inline:16px; padding-block:24px; line-height:1.6}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif; font-weight:600; text-wrap:balance; margin:0 0 .4em}
+  .wrap{max-width:760px; margin:0 auto}
+  p{margin:.6em 0}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px}
+  [hidden]{display:none!important}
+
+  #gate{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px}
+  #gate .box{max-width:380px; width:100%; text-align:center}
+  #gate input{width:100%; font-size:16px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); margin:14px 0}
+  #gate button{width:100%; font-size:16px; font-weight:600; padding:12px 14px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  #gate .emoji{font-size:40px}
+
+  .lede{color:var(--fg-dim); font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0 0 18px}
+  .pLabel{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:.78rem; margin-right:8px; flex:0 0 auto}
+  .pRow{display:flex; align-items:flex-start}
+  .gw{border-bottom:1.5px dotted var(--accent); color:var(--accent); font-weight:600; cursor:pointer}
+  .gw:hover{background:var(--accent-soft)}
+  #glossPop{position:fixed; max-width:280px; background:var(--surface); color:var(--fg); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); padding:10px 12px; font-size:.86rem; z-index:60; display:none}
+  #glossPop .gw-word{font-weight:700; margin-bottom:3px}
+  #glossPop .gw-ipa{color:var(--accent); font-family:ui-monospace,Menlo,monospace; margin-bottom:3px}
+  #glossPop .gw-vi{color:var(--fg-dim)}
+
+  .note-card{background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:.95rem}
+
+  .qcard .qtext{font-weight:600; margin-bottom:10px}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; cursor:pointer}
+  .opt:hover{border-color:var(--accent)}
+  .opt input{margin-top:3px}
+  .opt.correct{background:var(--ok-soft); border-color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
+  .fillInput{width:100%; font-size:16px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--fg)}
+  .fb{display:none; margin-top:8px; padding:10px 12px; border-radius:10px; font-size:.92rem}
+  .fb.show{display:block}
+  .fb.good{background:var(--ok-soft); color:var(--ok)}
+  .fb.bad{background:var(--bad-soft); color:var(--bad)}
+  button.primary{font:inherit; font-weight:600; font-size:15px; padding:11px 16px; border-radius:12px; border:none; background:var(--accent); color:var(--accent-fg); cursor:pointer}
+  button.primary:disabled{opacity:.5; cursor:not-allowed}
+  .scorebox{text-align:center; padding:24px 16px}
+  .scorebox .num{font-family:Fraunces,serif; font-size:2.6rem; color:var(--accent)}
+  .note{color:var(--fg-dim); font-size:.85rem; margin-top:6px}
+</style>
+</head>
+<body>
+
+<div id="glossPop"></div>
+
+<div id="gate">
+  <div class="box">
+    <div class="emoji">💡</div>
+    <h1 style="font-size:1.4rem">Áp Dụng 1: Đèn Đường Năng Lượng Mặt Trời</h1>
+    <p style="color:var(--fg-dim)">Nhập tên của em để bắt đầu nhé.</p>
+    <input id="nameInput" placeholder="Tên của em" autocomplete="off">
+    <button id="enterBtn">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="wrap" id="appRoot" hidden>
+  <h1 style="font-size:1.5rem">Áp Dụng 1: Đèn Đường Năng Lượng Mặt Trời</h1>
+  <p class="lede">Bài đọc thực chiến đầu tiên — áp dụng cùng lúc kỹ thuật True/False/Not Given, Multiple Choice, Họ Nối (tìm đoạn) và Hoàn thành câu đã học ở 4 bài trước.</p>
+  <div class="card" id="passageRoot"></div>
+  <div class="note-card">💡 Bấm vào <span class="gw" style="cursor:default">từ/cụm từ gạch chân cam</span> trong bài để xem phiên âm (IPA) và nghĩa tiếng Việt. Đọc kỹ cả bài một lượt rồi mới trả lời các câu hỏi dưới đây — đây là lúc áp dụng đúng kỹ thuật nhận diện bẫy em đã học ở các bài trước, không phải đoán mò.</div>
+  <div id="quizRoot"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LESSON_ID = "thuc-chien-1-solar";
+var studentName = "";
+function $(id){ return document.getElementById(id); }
+
+var PASSAGE_HTML = "\n<h2 style=\"font-size:1.1rem\">Solar-Powered Street Lighting</h2>\n\n<div class=\"pRow\"><span class=\"pLabel\">A</span><p style=\"margin:0\">Over the past decade, cities across the world have begun to replace conventional street lamps with solar-powered alternatives. Unlike traditional lighting, which draws electricity from the municipal grid, a solar streetlight generates its own power during the day and stores it in a battery for use after dark. Supporters argue that this technology could <span class=\"gw\" data-ipa=\"/səbˈstænʃəli/\" data-vi=\"đáng kể\">substantially</span> reduce a city's <span class=\"gw\" data-ipa=\"/ˈkɑːbən ˈfʊtprɪnt/\" data-vi=\"lượng khí thải carbon do một hoạt động gây ra\">carbon footprint</span>, since each unit relies on a <span class=\"gw\" data-ipa=\"/rɪˈnjuːəbl/\" data-vi=\"(năng lượng) có thể tái tạo\">renewable</span> source rather than electricity generated from <span class=\"gw\" data-ipa=\"/ˈfɒsl fjuːəlz/\" data-vi=\"nhiên liệu hóa thạch\">fossil fuels</span>.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">B</span><p style=\"margin:0\">The appeal of solar streetlights is not limited to environmental benefits. Because each pole is <span class=\"gw\" data-ipa=\"/self kənˈteɪnd/\" data-vi=\"tự vận hành độc lập, không cần hệ thống khác\">self-contained</span>, installation does not require digging trenches to lay underground cables, a process that is both costly and <span class=\"gw\" data-ipa=\"/dɪsˈrʌptɪv/\" data-vi=\"gây xáo trộn, cản trở\">disruptive</span> to traffic. Municipal engineers in several mid-sized cities have reported that <span class=\"gw\" data-ipa=\"/ˈretrəʊfɪtɪŋ/\" data-vi=\"lắp đặt thêm thiết bị mới vào hệ thống cũ\">retrofitting</span> an entire neighbourhood with solar lighting can be completed in a fraction of the time needed for a conventional wiring project. Maintenance costs are also said to be lower, largely because there is no cabling that can be damaged by construction work or extreme weather.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">C</span><p style=\"margin:0\">Nevertheless, the technology is not without its critics. One frequently raised concern is <span class=\"gw\" data-ipa=\"/rɪˌlaɪəˈbɪləti/\" data-vi=\"độ tin cậy, tính ổn định\">reliability</span>: a solar streetlight depends on sufficient daylight to recharge its battery, and in regions that experience long stretches of <span class=\"gw\" data-ipa=\"/ˈəʊvəkɑːst/\" data-vi=\"(trời) nhiều mây, âm u\">overcast</span> weather, the light may fail to last through the entire night. A second criticism concerns <span class=\"gw\" data-ipa=\"/ʌpˈfrʌnt kɒst/\" data-vi=\"chi phí ban đầu\">upfront cost</span>. Although solar units eliminate ongoing electricity bills, the initial price of the panel, battery, and pole assembly is considerably higher than that of a standard lamp connected to the grid, meaning that the <span class=\"gw\" data-ipa=\"/ˈpeɪbæk ˈpɪəriəd/\" data-vi=\"thời gian hoàn vốn\">payback period</span> — the time needed before the savings outweigh the extra cost — can stretch to several years. Some town councils have therefore chosen to install solar lighting only in locations that are too <span class=\"gw\" data-ipa=\"/rɪˈməʊt/\" data-vi=\"xa xôi, hẻo lánh\">remote</span> or expensive to connect to the existing grid.</p></div>\n\n<div class=\"pRow\"><span class=\"pLabel\">D</span><p style=\"margin:0\">A further issue, rarely discussed by manufacturers, is <span class=\"gw\" data-ipa=\"/gleə/\" data-vi=\"ánh sáng chói gắt\">glare</span>. Several residents living near newly installed solar streetlights have complained that the light produced is harsher and more intense than that of the sodium lamps it replaced, making it difficult to sleep with curtains open. Engineers <span class=\"gw\" data-ipa=\"/əˈtrɪbjuːt/\" data-vi=\"quy cho, cho là do\">attribute</span> this to the LED bulbs commonly paired with solar panels, which emit a cooler, whiter light. Manufacturers insist that adjustable shields can resolve the problem, though few cities have yet made this modification standard practice when fitting new units.</p></div>\n";
+var QUIZ = [{"q": "Do the following statements agree with the information given in the passage? Solar streetlights draw their electricity from the same municipal grid as conventional lamps.", "opts": ["True", "False", "Not Given"], "a": 1, "fb": ["Bài nói ngược lại: solar streetlight tự tạo điện và lưu vào battery, không dùng grid. Không thể là True.", "Đúng — bẫy đối lập trực tiếp: bài nói streetlight TỰ TẠO điện (self-contained), ngược hẳn với \"draws from the municipal grid\".", "Bài CÓ nói rõ ràng (và nói ngược lại) — không phải Not Given."]}, {"q": "Do the following statements agree with the information given in the passage? Installing solar streetlights can be completed faster than installing conventional wired lighting.", "opts": ["True", "False", "Not Given"], "a": 0, "fb": ["Đúng — đoạn B: retrofitting bằng đèn mặt trời \"can be completed in a fraction of the time needed for a conventional wiring project\".", "Bài không nói ngược lại — đây đúng là True.", "Bài có nói rõ ràng về tốc độ lắp đặt — không phải Not Given."]}, {"q": "Do the following statements agree with the information given in the passage? Every town council has decided to install solar streetlights only in remote areas.", "opts": ["True", "False", "Not Given"], "a": 2, "fb": ["Bài chỉ nói \"SOME town councils\", không phải \"every\" — không đủ dữ kiện để chọn True.", "Bài không phủ định điều này — không phải False.", "Đúng — bẫy khái quát hoá: bài chỉ nói MỘT SỐ hội đồng thành phố làm vậy, câu hỏi thổi phồng thành TẤT CẢ. Luôn cảnh giác với \"every/all\" khi bài chỉ nói \"some\"."]}, {"q": "According to the passage, why might a solar streetlight fail to provide light for an entire night in certain regions?", "opts": ["The battery is too small to store any power at all.", "The LED bulbs stop working in cold weather.", "There is not enough daylight to fully recharge the battery.", "The council switches the lights off deliberately to save money."], "a": 2, "fb": ["Bài không nói battery \"too small\" — vấn đề là thiếu nắng, không phải dung lượng pin.", "Bài không hề nhắc đến nhiệt độ lạnh ảnh hưởng đến đèn LED.", "Đúng — đoạn C: \"depends on sufficient daylight to recharge\" và vùng \"overcast weather\" khiến đèn không đủ sáng cả đêm.", "Bài không nói hội đồng tắt đèn chủ động để tiết kiệm tiền."]}, {"q": "What does the writer suggest is a drawback of solar streetlights that manufacturers rarely discuss?", "opts": ["The high cost of installation", "The glare produced by the light", "Difficulty finding replacement parts", "Noise coming from the battery unit"], "a": 1, "fb": ["Chi phí lắp đặt được nói đến khá nhiều ở đoạn C, không phải điều \"rarely discussed\".", "Đúng — đoạn D mở đầu bằng \"A further issue, rarely discussed by manufacturers, is glare.\"", "Bài không nhắc đến việc khó tìm phụ tùng thay thế.", "Bài không nhắc đến tiếng ồn từ battery."]}, {"q": "Which paragraph mentions a possible solution to a problem that has not yet become standard practice?", "opts": ["Paragraph A", "Paragraph B", "Paragraph C", "Paragraph D"], "a": 3, "fb": ["Đoạn A chỉ giới thiệu công nghệ, không nói giải pháp cho vấn đề cụ thể nào.", "Đoạn B nói về tốc độ lắp đặt và chi phí bảo trì, không có giải pháp nào bị bỏ lửng.", "Đoạn C nói về vấn đề chi phí/độ tin cậy nhưng không đưa ra giải pháp kèm theo.", "Đúng — đoạn D: \"adjustable shields can resolve the problem, though few cities have yet made this modification standard practice.\""]}, {"type": "fill", "q": "Complete the sentence using NO MORE THAN TWO WORDS from the passage: Several residents say the new lights are harsher and more ____ than the lamps they replaced.", "accept": ["intense"], "note": "Đáp án đúng: \"intense\" (đoạn D: \"harsher and more intense\")."}, {"type": "fill", "q": "Answer the question using NO MORE THAN THREE WORDS from the passage: What term does the writer use for the length of time needed before the savings from solar lighting outweigh its extra cost?", "accept": ["the payback period", "payback period"], "note": "Đáp án đúng: \"the payback period\" (đoạn C)."}];
+
+var answered = new Array(QUIZ.length).fill(false);
+var rawAnswer = new Array(QUIZ.length).fill(null);
+var isCorrect = new Array(QUIZ.length).fill(false);
+
+function enterLesson(){
+  var v = $("nameInput").value.trim();
+  if(!v){ $("nameInput").focus(); return; }
+  studentName = v;
+  $("gate").hidden = true;
+  $("appRoot").hidden = false;
+  renderPassage();
+  renderQuiz();
+}
+$("enterBtn").addEventListener("click", enterLesson);
+$("nameInput").addEventListener("keydown", function(e){ if(e.key === "Enter") enterLesson(); });
+
+function renderPassage(){
+  $("passageRoot").innerHTML = PASSAGE_HTML;
+}
+
+function renderQuiz(){
+  var root = $("quizRoot");
+  var html = '<div class="card"><p style="color:var(--fg-dim); margin:0">Trả lời từng câu dựa trên bài đọc ở trên. Với câu trắc nghiệm, lần chọn ĐẦU TIÊN được tính điểm. Với câu điền từ, bấm "Kiểm tra" khi đã chắc chắn.</p></div>';
+  QUIZ.forEach(function(item, i){
+    var type = item.type || "mc";
+    html += '<div class="card qcard" data-qi="' + i + '" data-type="' + type + '">';
+    html += '<div class="qtext">Câu ' + (i+1) + '. ' + item.q + '</div>';
+    if(item.hint){ html += '<div class="note" style="margin-bottom:8px">' + item.hint + '</div>'; }
+    if(type === "fill"){
+      html += '<input type="text" class="fillInput" placeholder="Nhập câu trả lời bằng tiếng Anh..." autocomplete="off">';
+      html += '<div style="margin-top:8px"><button class="primary fillCheck">Kiểm tra</button></div>';
+      html += '<div class="fb" data-fb></div>';
+    } else {
+      item.opts.forEach(function(opt, oi){
+        html += '<label class="opt" data-oi="' + oi + '"><input type="radio" name="q' + i + '" value="' + oi + '"><span>' + opt + '</span></label>';
+      });
+      html += '<div class="fb" data-fb></div>';
+    }
+    html += '</div>';
+  });
+  html += '<div class="card" id="submitCard"><button class="primary" id="submitBtn" disabled>Nộp bài (0/' + QUIZ.length + ')</button></div>';
+  root.innerHTML = html;
+
+  root.querySelectorAll('.qcard[data-type="mc"]').forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    card.querySelectorAll(".opt").forEach(function(label){
+      label.addEventListener("click", function(){
+        var oi = parseInt(label.dataset.oi, 10);
+        if(!answered[qi]){ answered[qi] = true; rawAnswer[qi] = oi; isCorrect[qi] = (oi === QUIZ[qi].a); }
+        label.querySelector("input").checked = true;
+        var correctIdx = QUIZ[qi].a;
+        card.querySelectorAll(".opt").forEach(function(l, li){
+          l.classList.remove("correct","wrong");
+          if(li === correctIdx) l.classList.add("correct");
+          else if(li === oi) l.classList.add("wrong");
+        });
+        var fb = card.querySelector("[data-fb]");
+        fb.textContent = QUIZ[qi].fb[oi];
+        fb.className = "fb show " + (oi === correctIdx ? "good" : "bad");
+        updateSubmitBtn();
+      });
+    });
+  });
+
+  root.querySelectorAll('.qcard[data-type="fill"]').forEach(function(card){
+    var qi = parseInt(card.dataset.qi, 10);
+    var inp = card.querySelector(".fillInput");
+    var btn = card.querySelector(".fillCheck");
+    function doCheck(){
+      if(answered[qi]) return;
+      var val = inp.value.trim();
+      if(!val){ inp.focus(); return; }
+      answered[qi] = true;
+      rawAnswer[qi] = val;
+      var ok = QUIZ[qi].accept.some(function(a){ return a.toLowerCase() === val.toLowerCase(); });
+      isCorrect[qi] = ok;
+      inp.disabled = true;
+      btn.disabled = true;
+      inp.style.borderColor = ok ? "var(--ok)" : "var(--bad)";
+      var fb = card.querySelector("[data-fb]");
+      fb.textContent = (ok ? "✅ Đúng rồi! " : ("❌ Chưa đúng — đáp án đúng: \"" + QUIZ[qi].accept[0] + "\". ")) + (QUIZ[qi].note || "");
+      fb.className = "fb show " + (ok ? "good" : "bad");
+      updateSubmitBtn();
+    }
+    btn.addEventListener("click", doCheck);
+    inp.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); doCheck(); } });
+  });
+
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  var done = answered.filter(Boolean).length;
+  var btn = $("submitBtn");
+  if(!btn) return;
+  btn.textContent = "Nộp bài (" + done + "/" + QUIZ.length + ")";
+  btn.disabled = done < QUIZ.length;
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "submitBtn"){ submitQuiz(); return; }
+  var g = e.target.closest(".gw[data-ipa]");
+  if(g){ e.stopPropagation(); showGloss(g); return; }
+  if(!e.target.closest("#glossPop")) hideGloss();
+});
+
+function showGloss(el){
+  var word = el.textContent;
+  var ipa = el.dataset.ipa || "";
+  var vi = el.dataset.vi || "";
+  var pop = $("glossPop");
+  pop.innerHTML = '<div class="gw-word">' + escapeHtml(word) + '</div>'
+    + '<div class="gw-ipa">' + escapeHtml(ipa) + '</div>'
+    + '<div class="gw-vi">' + escapeHtml(vi) + '</div>';
+  pop.style.display = "block";
+  var r = el.getBoundingClientRect();
+  var pw = pop.offsetWidth, ph = pop.offsetHeight;
+  var left = Math.min(Math.max(8, r.left), window.innerWidth - pw - 8);
+  var top = r.bottom + 6;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+}
+function hideGloss(){
+  var pop = $("glossPop");
+  if(pop) pop.style.display = "none";
+}
+
+function score(){
+  var correct = isCorrect.filter(Boolean).length;
+  return {correct: correct, total: QUIZ.length, pct: Math.round(correct/QUIZ.length*100)};
+}
+
+var SCRIPT_URL = "PASTE_SCRIPT_URL_HERE";
+
+async function submitQuiz(){
+  var s = score();
+  var root = $("quizRoot");
+  var payload = { name: studentName, lesson: LESSON_ID, correct: s.correct, total: s.total, pct: s.pct, answers: rawAnswer, submittedAt: new Date().toISOString() };
+  var savedMsg = "";
+  try{
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    savedMsg = "Đã gửi kết quả cho giáo viên.";
+  } catch(err){
+    savedMsg = "Không gửi được tự động — em chụp màn hình kết quả gửi qua Zalo cho cô nhé.";
+  }
+  root.innerHTML = '<div class="card scorebox">'
+    + '<div style="color:var(--fg-dim)">Kết quả của ' + escapeHtml(studentName) + '</div>'
+    + '<div class="num">' + s.correct + '/' + s.total + '</div>'
+    + '<div style="color:var(--fg-dim); margin-bottom:10px">(' + s.pct + '%)</div>'
+    + '<p>' + (s.pct >= 75 ? 'Rất tốt! Em đã áp dụng khá chắc kỹ thuật đã học. 🎉' : 'Em nên đọc lại bài và các bài "Đào sâu" trước đó một lần nữa nhé.') + '</p>'
+    + '<p class="note">' + savedMsg + '</p>'
+    + '</div>';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
+}
+})();
+</script>
+</body>
+</html>
